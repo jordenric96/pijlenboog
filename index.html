@@ -83,7 +83,6 @@
         /* Game Scherm Layout */
         #game-scherm { gap: 10px; padding: 10px; }
         
-        /* AANGEPAST: Linker kolom is nu een flex-container die in 2 stukken deelt */
         .kolom-links { flex: 0.8; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
         #leaderboardLijst { flex: 1; overflow-y: auto; padding-right: 5px; }
         
@@ -106,7 +105,7 @@
         .mini-doelwit { position: relative; width: 45px; height: 45px; margin-left: 10px; flex-shrink: 0; }
         .mini-doelwit svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
-        /* NIEUW: Bewegende Statistieken Linksonder */
+        /* Bewegende Statistieken Linksonder */
         .vergelijking-box {
             background: rgba(0, 0, 0, 0.25);
             border-radius: 12px;
@@ -128,7 +127,7 @@
         .doel-tekst { font-size: 0.9rem; color: #EEE; margin-bottom: 5px; }
         .pijlen-indicator { font-size: 1.5rem; margin: 2px 0; letter-spacing: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
 
-        /* AANGEPAST: Statistieken Middenkolom Verticaal & Compact */
+        /* Statistieken Middenkolom Verticaal & Compact */
         .speler-stats {
             font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.9);
@@ -139,7 +138,7 @@
             width: max-content;
             max-width: 95%;
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Verdeelt de 6 scores netjes over 2 kolommen */
+            grid-template-columns: 1fr 1fr;
             gap: 4px 15px;
             text-align: left;
         }
@@ -218,8 +217,9 @@
                 <label>🎯 Hoeveel pijlen mag je schieten?</label>
                 <div class="doel-knoppen" id="knoppenPijlen">
                     <button class="btn-optie" onclick="kiesPijlen(1, this)">1 🏹</button>
-                    <button class="btn-optie" onclick="kiesPijlen(2, this)">2 🏹</button>
-                    <button class="btn-optie gekozen" onclick="kiesPijlen(3, this)">3 🏹</button>
+                    <!-- STANDAARD GESELECTEERD: 2 pijlen -->
+                    <button class="btn-optie gekozen" onclick="kiesPijlen(2, this)">2 🏹</button>
+                    <button class="btn-optie" onclick="kiesPijlen(3, this)">3 🏹</button>
                     <button class="btn-optie" onclick="kiesPijlen(4, this)">4 🏹</button>
                 </div>
             </div>
@@ -251,7 +251,6 @@
                 <!-- Wordt gevuld via JS -->
             </div>
             
-            <!-- NIEUW: Bewegende Vergelijking Box -->
             <div class="vergelijking-box" id="vergelijkingBox">
                 <!-- Wordt elke 4 seconden geüpdatet -->
             </div>
@@ -261,7 +260,7 @@
             <div>
                 <h2 class="speler-naam" id="huidigeSpelerNaam">Naam</h2>
                 <div class="doel-tekst">Speelt tot <span id="weergaveDoelScore">60</span></div>
-                <div class="pijlen-indicator" id="pijlenIndicator">🎯🎯🎯</div>
+                <div class="pijlen-indicator" id="pijlenIndicator">🎯🎯</div>
             </div>
 
             <div class="visueel-doelwit">
@@ -316,7 +315,7 @@
         let spelers = [];
         let huidigeSpelerIndex = 0;
         let doelScore = 60;
-        let aantalPijlenPerBeurt = 3;
+        let aantalPijlenPerBeurt = 2; // STANDAARD OP 2 GEZET
         let aantalSpelersGekozen = 2;
         let pijlenGeschoten = 0;
         let geschiedenis = [];
@@ -324,7 +323,6 @@
         let isBeurtWissel = false;
         let audioCtx = null;
         
-        // --- Variabelen voor de vergelijkings-carrousel ---
         let carrouselInterval = null;
         let carrouselIndex = 0;
         const statTypes = [
@@ -418,21 +416,20 @@
             wisselScherm('game-scherm');
             updateUI();
 
-            // Start de carrousel animatie linksonder
             if (carrouselInterval) clearInterval(carrouselInterval);
             carrouselIndex = 0;
-            tekenVergelijkingHTML(); // Toon direct de eerste
-            carrouselInterval = setInterval(roteerCarrousel, 4500); // Roteer elke 4,5 seconden
+            tekenVergelijkingHTML(); 
+            carrouselInterval = setInterval(roteerCarrousel, 4500);
         }
 
         function roteerCarrousel() {
             const box = document.getElementById('vergelijkingBox');
             if(!box) return;
-            box.style.opacity = 0; // Vervaag
+            box.style.opacity = 0;
             setTimeout(() => {
                 carrouselIndex = (carrouselIndex + 1) % statTypes.length;
                 tekenVergelijkingHTML();
-                box.style.opacity = 1; // Kom terug tevoorschijn
+                box.style.opacity = 1;
             }, 500);
         }
 
@@ -443,13 +440,11 @@
 
             let html = `<div class="vergelijking-titel">${type.icoon} ${type.label}</div>`;
             
-            // Bereken de statistiek voor alle spelers
             let resultaten = spelers.map(p => ({
                 naam: p.naam,
                 count: p.scores.filter(s => s === type.score).length
             }));
 
-            // Sorteer van hoog naar laag
             resultaten.sort((a,b) => b.count - a.count);
 
             html += `<div class="vergelijking-lijst">`;
@@ -513,7 +508,7 @@
 
             pijlenGeschoten++;
             updateUI();
-            tekenVergelijkingHTML(); // Zorg dat carrousel meteen de nieuwe getallen kent
+            tekenVergelijkingHTML();
 
             if(speler.totaal >= doelScore) {
                 document.getElementById('winnaarTekst').innerText = `${speler.naam} Wint! 🏆`;
@@ -573,7 +568,7 @@
             document.getElementById('hit-markers').innerHTML = spelers[huidigeSpelerIndex].hitMarkers.join('');
             
             updateUI();
-            tekenVergelijkingHTML(); // Werk de actieve carrousel data direct bij
+            tekenVergelijkingHTML();
         }
 
         function bevestigStop() {
@@ -630,7 +625,6 @@
             let indicator = '🏹'.repeat(getoondePijlen) + '⚪'.repeat(restPijlen);
             document.getElementById('pijlenIndicator').innerText = indicator;
 
-            // --- Complete & Verticale Statistieken ---
             const totaalPijlen = speler.scores.length;
             const countStats = { 10: 0, 9: 0, 8: 0, 7: 0, 6: 0, 0: 0 };
             speler.scores.forEach(s => countStats[s]++);
@@ -648,7 +642,6 @@
                 <div class="stat-lijn">❌ Mis: ${countStats[0]} (${pct(countStats[0])}%)</div>
                 <div class="stat-lijn avg-lijn">📊 Gem. per beurt: ${avg}</div>
             `;
-            // -----------------------------------------
 
             renderLeaderboard();
 
