@@ -42,18 +42,22 @@
         /* Setup Scherm */
         #setup-scherm { align-items: center; justify-content: center; padding: 20px; }
         .setup-box { 
-            text-align: center; max-width: 650px; width: 100%; 
+            text-align: center; max-width: 700px; width: 100%; 
             max-height: 95vh; overflow-y: auto; 
         }
-        .setup-box h1 { color: var(--kleur-10); margin-top: 0; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
-        .input-groep { margin-bottom: 15px; text-align: left; }
-        label { display: block; font-size: 1.1rem; margin-bottom: 8px; font-weight: bold; text-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+        .setup-box h1 { color: var(--kleur-10); margin-top: 0; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); font-size: 2.5rem; }
+        
+        .input-groep { margin-bottom: 15px; text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; }
+        label { display: block; font-size: 1.2rem; margin-bottom: 10px; font-weight: bold; text-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
         
         .doel-knoppen { display: flex; gap: 10px; justify-content: space-between; }
+        .spelers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+        
         .btn-optie {
-            flex: 1; padding: 12px 0; font-size: 1.2rem; border-radius: 12px;
+            flex: 1; padding: 12px 5px; font-size: 1.2rem; border-radius: 12px;
             border: none; cursor: pointer; background: rgba(255,255,255,0.2); color: white;
             transition: all 0.2s; font-family: inherit; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
         }
         .btn-optie.gekozen {
             background: var(--kleur-10); color: black;
@@ -61,23 +65,24 @@
         }
 
         select, input[type="text"] { 
-            width: 100%; padding: 10px; font-size: 1.2rem; font-family: inherit;
+            width: 100%; padding: 12px; font-size: 1.2rem; font-family: inherit;
             border-radius: 10px; border: none; box-sizing: border-box; background: rgba(255,255,255,0.9);
         }
         
-        .speler-inputs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 5px; }
+        .speler-inputs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
         
         .btn-start {
-            background-color: #28A745; color: white; font-size: 1.8rem;
+            background-color: #28A745; color: white; font-size: 2rem;
             padding: 15px 40px; border: none; border-radius: 15px;
             cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;
             box-shadow: 0 6px 0px #1E7E34; transition: transform 0.1s;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
         }
         .btn-start:active { transform: translateY(6px); box-shadow: 0 0px 0px #1E7E34; }
 
         /* Game Scherm Layout */
         #game-scherm { gap: 10px; padding: 10px; }
-        .kolom-links { flex: 0.8; display: flex; flex-direction: column; overflow-y: auto; } /* Iets smaller */
+        .kolom-links { flex: 0.8; display: flex; flex-direction: column; overflow-y: auto; }
         .kolom-midden { flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; }
         .kolom-rechts { flex: 2; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 10px; }
 
@@ -94,7 +99,6 @@
         .speler-rij .score-tekst { font-size: 1.3rem; font-weight: bold; }
         .speler-info-wrapper { display: flex; flex-direction: column; flex: 1; }
 
-        /* Mini Doelwit in de lijst */
         .mini-doelwit { position: relative; width: 45px; height: 45px; margin-left: 10px; flex-shrink: 0; }
         .mini-doelwit svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
@@ -154,44 +158,46 @@
     <!-- SCHERM 1: INSTELLINGEN -->
     <div id="setup-scherm" class="scherm actief-scherm">
         <div class="glass-paneel setup-box">
-            <h1>🏹 Start Spel</h1>
+            <h1>🏹 Tijd om te schieten! 🎯</h1>
             
             <div class="input-groep">
-                <label>Doelscore:</label>
+                <label>🏆 Hoeveel punten om te winnen?</label>
                 <div class="doel-knoppen">
-                    <button class="btn-optie" onclick="kiesDoel(30, this)">30</button>
-                    <button class="btn-optie gekozen" onclick="kiesDoel(50, this)">50</button>
-                    <button class="btn-optie" onclick="kiesDoel(70, this)">70</button>
-                    <button class="btn-optie" onclick="kiesDoel(100, this)">100</button>
+                    <button class="btn-optie" onclick="kiesDoel(30, this)">30 ⭐</button>
+                    <button class="btn-optie gekozen" onclick="kiesDoel(50, this)">50 🌟</button>
+                    <button class="btn-optie" onclick="kiesDoel(70, this)">70 💫</button>
+                    <button class="btn-optie" onclick="kiesDoel(100, this)">100 🏆</button>
                 </div>
             </div>
 
             <div class="input-groep">
-                <label>Aantal pijlen per beurt:</label>
+                <label>🎯 Hoeveel pijlen mag je schieten?</label>
                 <div class="doel-knoppen" id="knoppenPijlen">
-                    <button class="btn-optie" onclick="kiesPijlen(1, this)">1</button>
-                    <button class="btn-optie" onclick="kiesPijlen(2, this)">2</button>
-                    <button class="btn-optie gekozen" onclick="kiesPijlen(3, this)">3</button>
-                    <button class="btn-optie" onclick="kiesPijlen(4, this)">4</button>
+                    <button class="btn-optie" onclick="kiesPijlen(1, this)">1 🏹</button>
+                    <button class="btn-optie" onclick="kiesPijlen(2, this)">2 🏹</button>
+                    <button class="btn-optie gekozen" onclick="kiesPijlen(3, this)">3 🏹</button>
+                    <button class="btn-optie" onclick="kiesPijlen(4, this)">4 🏹</button>
                 </div>
             </div>
 
             <div class="input-groep">
-                <label>Aantal spelers:</label>
-                <select id="aantalSpelers" onchange="genereerSpelerInputs()">
-                    <option value="1">1 Speler</option>
-                    <option value="2" selected>2 Spelers</option>
-                    <option value="3">3 Spelers</option>
-                    <option value="4">4 Spelers</option>
-                    <option value="5">5 Spelers</option>
-                    <option value="6">6 Spelers</option>
-                    <option value="7">7 Spelers</option>
-                    <option value="8">8 Spelers</option>
-                </select>
-                <div id="spelerNamenDiv" class="speler-inputs"></div>
+                <label>👥 Met hoeveel gaan we spelen?</label>
+                <div class="spelers-grid" id="knoppenSpelers">
+                    <button class="btn-optie" onclick="kiesAantalSpelers(1, this)">1 👤</button>
+                    <button class="btn-optie gekozen" onclick="kiesAantalSpelers(2, this)">2 👤</button>
+                    <button class="btn-optie" onclick="kiesAantalSpelers(3, this)">3 👤</button>
+                    <button class="btn-optie" onclick="kiesAantalSpelers(4, this)">4 👤</button>
+                    <button class="btn-optie" onclick="kiesAantalSpelers(5, this)">5 👤</button>
+                    <button class="btn-optie" onclick="kiesAantalSpelers(6, this)">6 👤</button>
+                    <button class="btn-optie" onclick="kiesAantalSpelers(7, this)">7 👤</button>
+                    <button class="btn-optie" onclick="kiesAantalSpelers(8, this)">8 👤</button>
+                </div>
+                <div id="spelerNamenDiv" class="speler-inputs">
+                    <!-- Dit vult zich vanzelf aan via Javascript -->
+                </div>
             </div>
 
-            <button class="btn-start" onclick="startSpel()">Starten!</button>
+            <button class="btn-start" onclick="startSpel()">🚀 Spelen maar!</button>
         </div>
     </div>
 
@@ -199,7 +205,7 @@
     <div id="game-scherm" class="scherm">
         
         <div class="glass-paneel kolom-links" id="leaderboardLijst">
-            <!-- Wordt gevuld via JS, titel is weggelaten -->
+            <!-- Wordt gevuld via JS -->
         </div>
 
         <div class="glass-paneel kolom-midden">
@@ -248,7 +254,7 @@
     </div>
 
     <div id="gewonnen-scherm" class="gewonnen-overlay">
-        <div class="gewonnen-tekst" id="winnaarTekst">Jorden Wint!</div>
+        <div class="gewonnen-tekst" id="winnaarTekst">Wint! 🏆</div>
         <button class="btn-start" style="width: auto; padding: 20px 50px;" onclick="terugNaarMenu()">Nieuw Spel</button>
     </div>
 
@@ -257,12 +263,13 @@
         let huidigeSpelerIndex = 0;
         let doelScore = 50;
         let aantalPijlenPerBeurt = 3;
+        let aantalSpelersGekozen = 2; // Standaard 2 spelers
         let pijlenGeschoten = 0;
         let geschiedenis = [];
         let autoNextTimeout = null;
         let audioCtx = null;
         
-        // Enkel Lou en Noé, de rest wordt Speler X
+        // Enkel Lou en Noé als vaste namen
         const standaardNamen = ["Lou", "Noé"];
 
         function initAudio() {
@@ -307,11 +314,17 @@
             btnElement.classList.add('gekozen');
         }
 
+        function kiesAantalSpelers(aantal, btnElement) {
+            aantalSpelersGekozen = aantal;
+            btnElement.parentNode.querySelectorAll('.btn-optie').forEach(b => b.classList.remove('gekozen'));
+            btnElement.classList.add('gekozen');
+            genereerSpelerInputs();
+        }
+
         function genereerSpelerInputs() {
-            const aantal = document.getElementById('aantalSpelers').value;
             const container = document.getElementById('spelerNamenDiv');
             container.innerHTML = '';
-            for(let i = 0; i < aantal; i++) {
+            for(let i = 0; i < aantalSpelersGekozen; i++) {
                 const defaultNaam = standaardNamen[i] || `Speler ${i+1}`;
                 container.innerHTML += `<input type="text" id="naamSpeler${i}" value="${defaultNaam}">`;
             }
@@ -320,15 +333,15 @@
         function startSpel() {
             initAudio();
             document.getElementById('weergaveDoelScore').innerText = doelScore;
-            const aantal = document.getElementById('aantalSpelers').value;
             
             spelers = [];
             geschiedenis = [];
             pijlenGeschoten = 0;
             huidigeSpelerIndex = 0;
 
-            for(let i = 0; i < aantal; i++) {
-                const naam = document.getElementById(`naamSpeler${i}`).value || `Speler ${i+1}`;
+            for(let i = 0; i < aantalSpelersGekozen; i++) {
+                const naamInput = document.getElementById(`naamSpeler${i}`);
+                const naam = naamInput ? naamInput.value : `Speler ${i+1}`;
                 spelers.push({ naam: naam, scores: [], totaal: 0 });
             }
 
@@ -449,7 +462,6 @@
             spelers.forEach((speler, index) => {
                 const isActief = (index === huidigeSpelerIndex) ? 'actief' : '';
                 
-                // Bereken percentage voor het mini-doelwitje
                 let percentage = (speler.totaal / doelScore) * 100;
                 if (percentage > 100) percentage = 100;
                 const clipWaarde = 100 - percentage;
