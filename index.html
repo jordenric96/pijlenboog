@@ -8,24 +8,16 @@
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
-            --kleur-10: #FBD036;
-            --kleur-9: #F05359;
-            --kleur-8: #52B5D9;
-            --kleur-7: #2F4159;
-            --kleur-6: #FFFFFF;
-            --kleur-mis: #444444;
+            --kleur-10: #FBD036; --kleur-9: #F05359; --kleur-8: #52B5D9;
+            --kleur-7: #2F4159; --kleur-6: #FFFFFF; --kleur-mis: #444444;
         }
 
         body {
             margin: 0; padding: 0;
             font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
-            /* Gradiënt gebaseerd op het fysieke bord (cyaan naar roze/rood) */
             background: linear-gradient(135deg, #74C8D4 0%, #F05359 100%);
-            color: white;
-            display: flex;
-            height: 100vh; width: 100vw;
-            overflow: hidden;
-            user-select: none;
+            color: white; display: flex; height: 100vh; width: 100vw;
+            overflow: hidden; user-select: none;
         }
 
         @media screen and (orientation: portrait) {
@@ -38,93 +30,90 @@
             }
         }
 
-        /* Glazen panelen stijl voor de overzichten */
         .glass-paneel {
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            padding: 20px;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px);
+            border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 20px;
         }
 
-        /* Scherm Wissel Logica */
         .scherm { display: none; width: 100%; height: 100%; box-sizing: border-box; }
         .actief-scherm { display: flex; }
 
         /* Setup Scherm */
-        #setup-scherm {
-            align-items: center; justify-content: center; padding: 20px;
-        }
-        .setup-box {
-            text-align: center; max-width: 600px; width: 100%;
-        }
+        #setup-scherm { align-items: center; justify-content: center; padding: 20px; }
+        .setup-box { text-align: center; max-width: 600px; width: 100%; }
         .setup-box h1 { color: var(--kleur-10); margin-top: 0; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
-        .input-groep { margin-bottom: 25px; text-align: left; }
-        label { display: block; font-size: 1.2rem; margin-bottom: 10px; font-weight: bold; text-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+        .input-groep { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-size: 1.1rem; margin-bottom: 8px; font-weight: bold; text-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
         
-        /* Doel Knoppen */
         .doel-knoppen { display: flex; gap: 10px; justify-content: space-between; }
-        .btn-doel {
-            flex: 1; padding: 15px 0; font-size: 1.5rem; border-radius: 12px;
+        .btn-optie {
+            flex: 1; padding: 12px 0; font-size: 1.2rem; border-radius: 12px;
             border: none; cursor: pointer; background: rgba(255,255,255,0.2); color: white;
             transition: all 0.2s; font-family: inherit; font-weight: bold;
         }
-        .btn-doel.gekozen {
+        .btn-optie.gekozen {
             background: var(--kleur-10); color: black;
-            transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.4);
         }
 
         select, input[type="text"] { 
-            width: 100%; padding: 12px; font-size: 1.2rem; font-family: inherit;
+            width: 100%; padding: 10px; font-size: 1.2rem; font-family: inherit;
             border-radius: 10px; border: none; box-sizing: border-box; background: rgba(255,255,255,0.9);
         }
-        .speler-inputs { display: grid; gap: 10px; margin-top: 10px; }
+        .speler-inputs { display: grid; gap: 8px; margin-top: 5px; }
         
         .btn-start {
             background-color: #28A745; color: white; font-size: 1.8rem;
             padding: 15px 40px; border: none; border-radius: 15px;
-            cursor: pointer; font-weight: bold; width: 100%;
+            cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;
             box-shadow: 0 6px 0px #1E7E34; transition: transform 0.1s;
         }
         .btn-start:active { transform: translateY(6px); box-shadow: 0 0px 0px #1E7E34; }
 
-        /* Game Scherm Layout (3 Kolommen) */
+        /* Game Scherm Layout */
         #game-scherm { gap: 15px; padding: 15px; }
         .kolom-links { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
         .kolom-midden { flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; }
         .kolom-rechts { flex: 1.8; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; }
 
         /* Leaderboard */
-        .leaderboard-titel { margin: 0 0 15px 0; font-size: 1.5rem; text-align: center; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+        .leaderboard-titel { margin: 0 0 10px 0; font-size: 1.3rem; text-align: center; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
         .speler-rij {
             display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.1); padding: 12px 15px;
-            border-radius: 12px; margin-bottom: 10px; font-size: 1.2rem;
-            transition: all 0.3s;
+            background: rgba(255,255,255,0.1); padding: 10px 15px;
+            border-radius: 12px; margin-bottom: 8px; font-size: 1.1rem; transition: all 0.3s;
         }
         .speler-rij.actief {
             background: var(--kleur-10); color: black; font-weight: bold;
-            transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            border: 2px solid white;
+            transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 2px solid white;
         }
-        .speler-rij .score-tekst { font-size: 1.4rem; }
+        .speler-rij .score-tekst { font-size: 1.3rem; }
 
         /* Middenpaneel Info */
-        .speler-naam { font-size: 3rem; color: var(--kleur-10); margin: 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.5); line-height: 1; }
-        .doel-tekst { font-size: 1.2rem; color: #EEE; margin-bottom: 10px; }
+        .speler-naam { font-size: 2.8rem; color: var(--kleur-10); margin: 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.5); line-height: 1; }
+        .doel-tekst { font-size: 1rem; color: #EEE; margin-bottom: 5px; }
+        .pijlen-indicator { font-size: 1.8rem; margin: 5px 0; letter-spacing: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
 
         /* Visueel Doelwit */
         .visueel-doelwit { position: relative; width: 160px; height: 160px; margin: auto; }
         .visueel-doelwit svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         .doelwit-grijs { filter: grayscale(100%) opacity(30%); }
         .doelwit-kleur { clip-path: inset(100% 0 0 0); transition: clip-path 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Hit Markers Animatie */
+        @keyframes plop {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .hit-marker { animation: plop 0.3s ease-out forwards; transform-origin: center; }
 
-        .score-display { font-size: 4rem; font-weight: bold; color: white; text-shadow: 3px 3px 0px rgba(0,0,0,0.5); margin: 10px 0; }
+        .score-display { font-size: 4rem; font-weight: bold; color: white; text-shadow: 3px 3px 0px rgba(0,0,0,0.5); margin: 5px 0; }
 
         .actie-knoppen { display: flex; gap: 10px; width: 100%; margin-top: auto; }
         .btn-actie {
-            flex: 1; padding: 15px 10px; font-size: 1.2rem; border: none; border-radius: 12px;
+            flex: 1; padding: 12px 10px; font-size: 1.1rem; border: none; border-radius: 12px;
             cursor: pointer; font-weight: bold; color: white; box-shadow: 0 4px 0px rgba(0,0,0,0.3);
         }
         .btn-actie:active { transform: translateY(4px); box-shadow: 0 0px 0px rgba(0,0,0,0.3); }
@@ -143,9 +132,8 @@
         .score-8  { background-color: var(--kleur-8);  color: #FFF; }
         .score-7  { background-color: var(--kleur-7);  color: #FFF; }
         .score-6  { background-color: var(--kleur-6);  color: #000; text-shadow: none; }
-        .score-0  { background-color: var(--kleur-mis); color: #FFF; }
+        .score-0  { background-color: var(--kleur-mis); color: #FFF; font-size: 3rem; }
 
-        /* Confetti bij winst */
         .gewonnen-overlay {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.85); z-index: 10; display: none;
@@ -162,13 +150,22 @@
             <h1>🏹 Start Spel</h1>
             
             <div class="input-groep">
-                <label>Tot hoeveel punten spelen we?</label>
+                <label>Doelscore:</label>
                 <div class="doel-knoppen">
-                    <button class="btn-doel" onclick="kiesDoel(20, this)">20</button>
-                    <button class="btn-doel" onclick="kiesDoel(40, this)">40</button>
-                    <button class="btn-doel gekozen" onclick="kiesDoel(60, this)">60</button>
-                    <button class="btn-doel" onclick="kiesDoel(80, this)">80</button>
-                    <button class="btn-doel" onclick="kiesDoel(100, this)">100</button>
+                    <button class="btn-optie" onclick="kiesDoel(30, this)">30</button>
+                    <button class="btn-optie gekozen" onclick="kiesDoel(50, this)">50</button>
+                    <button class="btn-optie" onclick="kiesDoel(70, this)">70</button>
+                    <button class="btn-optie" onclick="kiesDoel(100, this)">100</button>
+                </div>
+            </div>
+
+            <div class="input-groep">
+                <label>Aantal pijlen per beurt:</label>
+                <div class="doel-knoppen" id="knoppenPijlen">
+                    <button class="btn-optie" onclick="kiesPijlen(1, this)">1</button>
+                    <button class="btn-optie" onclick="kiesPijlen(2, this)">2</button>
+                    <button class="btn-optie gekozen" onclick="kiesPijlen(3, this)">3</button>
+                    <button class="btn-optie" onclick="kiesPijlen(4, this)">4</button>
                 </div>
             </div>
 
@@ -180,9 +177,7 @@
                     <option value="3">3 Spelers</option>
                     <option value="4">4 Spelers</option>
                 </select>
-                <div id="spelerNamenDiv" class="speler-inputs">
-                    <!-- Wordt gevuld via JS -->
-                </div>
+                <div id="spelerNamenDiv" class="speler-inputs"></div>
             </div>
 
             <button class="btn-start" onclick="startSpel()">Starten!</button>
@@ -192,23 +187,19 @@
     <!-- SCHERM 2: HET SPEL -->
     <div id="game-scherm" class="scherm">
         
-        <!-- Kolom Links: Ieders Score (Leaderboard) -->
         <div class="glass-paneel kolom-links">
             <h3 class="leaderboard-titel">Scorebord</h3>
-            <div id="leaderboardLijst">
-                <!-- Wordt gevuld via JS -->
-            </div>
+            <div id="leaderboardLijst"></div>
         </div>
 
-        <!-- Kolom Midden: Actieve Speler -->
         <div class="glass-paneel kolom-midden">
             <div>
                 <h2 class="speler-naam" id="huidigeSpelerNaam">Naam</h2>
-                <div class="doel-tekst">Speelt tot <span id="weergaveDoelScore">60</span></div>
+                <div class="doel-tekst">Speelt tot <span id="weergaveDoelScore">50</span></div>
+                <div class="pijlen-indicator" id="pijlenIndicator">🎯🎯🎯</div>
             </div>
 
             <div class="visueel-doelwit">
-                <!-- Grijze achtergrond -->
                 <svg viewBox="0 0 100 100" class="doelwit-grijs">
                     <circle cx="50" cy="50" r="48" fill="#FFF" stroke="#000" stroke-width="2"/>
                     <circle cx="50" cy="50" r="38" fill="#2F4159"/>
@@ -216,7 +207,6 @@
                     <circle cx="50" cy="50" r="18" fill="#F05359"/>
                     <circle cx="50" cy="50" r="8"  fill="#FBD036"/>
                 </svg>
-                <!-- Gekleurde vulling (wordt aangestuurd via JS clip-path) -->
                 <svg viewBox="0 0 100 100" class="doelwit-kleur" id="doelwitVulling">
                     <circle cx="50" cy="50" r="48" fill="#FFF" stroke="#000" stroke-width="2"/>
                     <circle cx="50" cy="50" r="38" fill="#2F4159"/>
@@ -224,6 +214,8 @@
                     <circle cx="50" cy="50" r="18" fill="#F05359"/>
                     <circle cx="50" cy="50" r="8"  fill="#FBD036"/>
                 </svg>
+                <!-- Hit markers komen hier in -->
+                <svg viewBox="0 0 100 100" style="position: absolute; top:0; left:0; width:100%; height:100%; z-index: 5;" id="hit-markers"></svg>
             </div>
 
             <div class="score-display">
@@ -232,11 +224,10 @@
 
             <div class="actie-knoppen">
                 <button class="btn-actie" onclick="undo()" style="background-color: #E0A800;">Oeps ↩</button>
-                <button class="btn-actie" onclick="volgendeSpeler()" style="background-color: #17A2B8;" id="btnVolgende">Volgende ➔</button>
+                <button class="btn-actie" onclick="volgendeSpelerHandmatig()" style="background-color: #17A2B8;" id="btnVolgende">Volgende ➔</button>
             </div>
         </div>
 
-        <!-- Kolom Rechts: Knoppen -->
         <div class="kolom-rechts">
             <button class="btn-score score-10" onclick="voegScoreToe(10)">10</button>
             <button class="btn-score score-9" onclick="voegScoreToe(9)">9</button>
@@ -247,7 +238,6 @@
         </div>
     </div>
 
-    <!-- SCHERM OVERLAY: GEWONNEN -->
     <div id="gewonnen-scherm" class="gewonnen-overlay">
         <div class="gewonnen-tekst" id="winnaarTekst">Jorden Wint!</div>
         <button class="btn-start" style="width: auto; padding: 20px 50px;" onclick="terugNaarMenu()">Nieuw Spel</button>
@@ -256,13 +246,55 @@
     <script>
         let spelers = [];
         let huidigeSpelerIndex = 0;
-        let doelScore = 60; // Standaard geselecteerd
+        let doelScore = 50;
+        let aantalPijlenPerBeurt = 3;
+        let pijlenGeschoten = 0;
+        let geschiedenis = [];
+        let autoNextTimeout = null;
+        let audioCtx = null;
         
         const standaardNamen = ["Lou", "Noé", "Jorden", "Mama"];
 
+        // GELUIDEN (Web Audio API - Geen externe bestanden nodig!)
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+        
+        function speelGeluid(type) {
+            if (!audioCtx) return;
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if (type === 'swoosh') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, t);
+                osc.frequency.exponentialRampToValueAtTime(100, t + 0.15);
+                gain.gain.setValueAtTime(0.3, t);
+                gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+                osc.start(t); osc.stop(t + 0.15);
+            } else if (type === 'juich') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, t); // C5
+                osc.frequency.setValueAtTime(659.25, t + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, t + 0.2); // G5
+                gain.gain.setValueAtTime(0.5, t);
+                gain.gain.linearRampToValueAtTime(0, t + 0.6);
+                osc.start(t); osc.stop(t + 0.6);
+            }
+        }
+
         function kiesDoel(score, btnElement) {
             doelScore = score;
-            document.querySelectorAll('.btn-doel').forEach(btn => btn.classList.remove('gekozen'));
+            btnElement.parentNode.querySelectorAll('.btn-optie').forEach(b => b.classList.remove('gekozen'));
+            btnElement.classList.add('gekozen');
+        }
+
+        function kiesPijlen(aantal, btnElement) {
+            aantalPijlenPerBeurt = aantal;
+            btnElement.parentNode.querySelectorAll('.btn-optie').forEach(b => b.classList.remove('gekozen'));
             btnElement.classList.add('gekozen');
         }
 
@@ -270,34 +302,139 @@
             const aantal = document.getElementById('aantalSpelers').value;
             const container = document.getElementById('spelerNamenDiv');
             container.innerHTML = '';
-            
             for(let i = 0; i < aantal; i++) {
-                const defaultNaam = standaardNamen[i] || `Speler ${i+1}`;
-                container.innerHTML += `<input type="text" id="naamSpeler${i}" value="${defaultNaam}">`;
+                container.innerHTML += `<input type="text" id="naamSpeler${i}" value="${standaardNamen[i] || `Speler ${i+1}`}">`;
             }
         }
 
         function startSpel() {
+            initAudio(); // Start de audio engine na klik
             document.getElementById('weergaveDoelScore').innerText = doelScore;
-            
             const aantal = document.getElementById('aantalSpelers').value;
+            
             spelers = [];
+            geschiedenis = [];
+            pijlenGeschoten = 0;
+            huidigeSpelerIndex = 0;
+
             for(let i = 0; i < aantal; i++) {
                 const naam = document.getElementById(`naamSpeler${i}`).value || `Speler ${i+1}`;
                 spelers.push({ naam: naam, scores: [], totaal: 0 });
             }
 
-            huidigeSpelerIndex = 0;
             document.getElementById('btnVolgende').style.display = (spelers.length > 1) ? 'block' : 'none';
-
+            document.getElementById('hit-markers').innerHTML = '';
+            
             wisselScherm('game-scherm');
             updateUI();
         }
 
         function wisselScherm(schermId) {
-            document.getElementById('setup-scherm').classList.remove('actief-scherm');
-            document.getElementById('game-scherm').classList.remove('actief-scherm');
+            document.querySelectorAll('.scherm').forEach(s => s.classList.remove('actief-scherm'));
             document.getElementById(schermId).classList.add('actief-scherm');
+        }
+
+        function tekenHitMarker(score) {
+            let r_min, r_max;
+            if(score === 10) { r_min = 0; r_max = 7; }
+            else if(score === 9) { r_min = 10; r_max = 17; }
+            else if(score === 8) { r_min = 20; r_max = 27; }
+            else if(score === 7) { r_min = 30; r_max = 37; }
+            else if(score === 6) { r_min = 40; r_max = 47; }
+            else { r_min = 55; r_max = 70; } // Mis (buiten bord)
+
+            const r = r_min + Math.random() * (r_max - r_min);
+            const hoek = Math.random() * 2 * Math.PI;
+            const x = 50 + r * Math.cos(hoek);
+            const y = 50 + r * Math.sin(hoek);
+
+            const marker = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            marker.setAttribute("cx", x); marker.setAttribute("cy", y);
+            marker.setAttribute("r", 2.5); marker.setAttribute("fill", "#000");
+            marker.setAttribute("stroke", "#FFF"); marker.setAttribute("stroke-width", "0.8");
+            marker.classList.add("hit-marker");
+            return marker;
+        }
+
+        function voegScoreToe(punten) {
+            initAudio();
+            clearTimeout(autoNextTimeout);
+            speelGeluid(punten === 10 ? 'juich' : 'swoosh');
+
+            const marker = tekenHitMarker(punten);
+            document.getElementById('hit-markers').appendChild(marker);
+
+            spelers[huidigeSpelerIndex].scores.push(punten);
+            spelers[huidigeSpelerIndex].totaal += punten;
+            
+            geschiedenis.push({
+                type: 'score',
+                spelerIndex: huidigeSpelerIndex,
+                punten: punten,
+                markerHTML: marker.outerHTML,
+                pijlenVooraf: pijlenGeschoten
+            });
+
+            pijlenGeschoten++;
+            updateUI();
+
+            // Check Winst
+            if(spelers[huidigeSpelerIndex].totaal >= doelScore) {
+                document.getElementById('winnaarTekst').innerText = `${spelers[huidigeSpelerIndex].naam} Wint! 🏆`;
+                document.getElementById('gewonnen-scherm').style.display = 'flex';
+                return;
+            }
+
+            // Auto-volgende speler
+            if (pijlenGeschoten >= aantalPijlenPerBeurt && spelers.length > 1) {
+                autoNextTimeout = setTimeout(() => {
+                    volgendeSpelerVerwerking(false);
+                }, 1200); // Korte pauze om het laatste schot te zien
+            }
+        }
+
+        function volgendeSpelerHandmatig() {
+            clearTimeout(autoNextTimeout);
+            volgendeSpelerVerwerking(true);
+        }
+
+        function volgendeSpelerVerwerking(isHandmatig) {
+            if (isHandmatig) {
+                geschiedenis.push({ type: 'skip', spelerIndex: huidigeSpelerIndex, pijlenVooraf: pijlenGeschoten });
+            }
+            huidigeSpelerIndex = (huidigeSpelerIndex + 1) % spelers.length;
+            pijlenGeschoten = 0;
+            document.getElementById('hit-markers').innerHTML = '';
+            updateUI();
+        }
+
+        function undo() {
+            if (geschiedenis.length === 0) return;
+            clearTimeout(autoNextTimeout);
+            
+            const laatsteActie = geschiedenis.pop();
+
+            if (laatsteActie.type === 'skip') {
+                huidigeSpelerIndex = laatsteActie.spelerIndex;
+                pijlenGeschoten = laatsteActie.pijlenVooraf;
+            } else {
+                huidigeSpelerIndex = laatsteActie.spelerIndex;
+                pijlenGeschoten = laatsteActie.pijlenVooraf;
+                
+                const speler = spelers[huidigeSpelerIndex];
+                speler.scores.pop();
+                speler.totaal -= laatsteActie.punten;
+            }
+
+            // Herteken markers van de huidige beurt
+            document.getElementById('hit-markers').innerHTML = '';
+            for (let i = geschiedenis.length - pijlenGeschoten; i < geschiedenis.length; i++) {
+                if(geschiedenis[i].type === 'score') {
+                    document.getElementById('hit-markers').insertAdjacentHTML('beforeend', geschiedenis[i].markerHTML);
+                }
+            }
+
+            updateUI();
         }
 
         function renderLeaderboard() {
@@ -308,8 +445,7 @@
                     <div class="speler-rij ${isActief}">
                         <span>${speler.naam}</span>
                         <span class="score-tekst">${speler.totaal}</span>
-                    </div>
-                `;
+                    </div>`;
             });
             document.getElementById('leaderboardLijst').innerHTML = html;
         }
@@ -317,45 +453,18 @@
         function updateUI() {
             const speler = spelers[huidigeSpelerIndex];
             
-            // Middenpaneel updaten
             document.getElementById('huidigeSpelerNaam').innerText = speler.naam;
             document.getElementById('huidigeScore').innerText = speler.totaal;
+            
+            // Pijlen Indicator
+            let indicator = '🏹'.repeat(pijlenGeschoten) + '⚪'.repeat(aantalPijlenPerBeurt - pijlenGeschoten);
+            document.getElementById('pijlenIndicator').innerText = indicator;
 
-            // Linkerpaneel (Leaderboard) updaten
             renderLeaderboard();
 
-            // Bereken vul-percentage voor SVG
             let percentage = (speler.totaal / doelScore) * 100;
             if (percentage > 100) percentage = 100;
-            
-            const clipWaarde = 100 - percentage;
-            document.getElementById('doelwitVulling').style.clipPath = `inset(${clipWaarde}% 0 0 0)`;
-
-            // Check op winst
-            if(speler.totaal >= doelScore) {
-                document.getElementById('winnaarTekst').innerText = `${speler.naam} Wint! 🏆`;
-                document.getElementById('gewonnen-scherm').style.display = 'flex';
-            }
-        }
-
-        function voegScoreToe(punten) {
-            spelers[huidigeSpelerIndex].scores.push(punten);
-            spelers[huidigeSpelerIndex].totaal += punten;
-            updateUI();
-        }
-
-        function undo() {
-            const speler = spelers[huidigeSpelerIndex];
-            if (speler.scores.length > 0) {
-                const laatsteScore = speler.scores.pop();
-                speler.totaal -= laatsteScore;
-                updateUI();
-            }
-        }
-
-        function volgendeSpeler() {
-            huidigeSpelerIndex = (huidigeSpelerIndex + 1) % spelers.length;
-            updateUI();
+            document.getElementById('doelwitVulling').style.clipPath = `inset(${100 - percentage}% 0 0 0)`;
         }
 
         function terugNaarMenu() {
