@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1E1E24">
+    <title>Boogschieten Score</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --kleur-10: #FBD036; /* Geel */
+            --kleur-9: #F05359;  /* Rood/Roze */
+            --kleur-8: #52B5D9;  /* Lichtblauw */
+            --kleur-7: #2F4159;  /* Donkerblauw */
+            --kleur-6: #FFFFFF;  /* Wit */
+            --kleur-mis: #444444; /* Grijs voor 0 */
+            --bg-color: #1E1E24;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Speels lettertype */
+            background-color: var(--bg-color);
+            color: white;
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            user-select: none; /* Voorkomt tekst selecteren bij snel tikken */
+        }
+
+        /* Waarschuwing als de tablet rechtop staat */
+        @media screen and (orientation: portrait) {
+            body::before {
+                content: "Draai je tablet horizontaal! 🔄";
+                position: absolute;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: var(--kleur-8);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 3rem;
+                z-index: 1000;
+                text-align: center;
+                padding: 20px;
+            }
+        }
+
+        .paneel-links {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #2A2A35;
+            padding: 20px;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+            z-index: 2;
+        }
+
+        .paneel-rechts {
+            flex: 2;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px;
+            background-color: var(--bg-color);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            color: var(--kleur-8);
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+        }
+
+        .score-display {
+            font-size: 8rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: var(--kleur-10);
+            text-shadow: 4px 4px 0px rgba(0,0,0,0.4);
+        }
+
+        .historiek {
+            font-size: 1.5rem;
+            min-height: 40px;
+            margin-bottom: 30px;
+            color: #AAAAAA;
+        }
+
+        .actie-knoppen {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-actie {
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #444;
+            color: white;
+            transition: transform 0.1s;
+        }
+
+        .btn-actie:active {
+            transform: scale(0.95);
+        }
+
+        .btn-score {
+            border: none;
+            border-radius: 20px;
+            font-size: 5rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 0px rgba(0,0,0,0.3);
+            transition: transform 0.1s, box-shadow 0.1s;
+            font-family: inherit;
+        }
+
+        .btn-score:active {
+            transform: translateY(8px);
+            box-shadow: 0 0px 0px rgba(0,0,0,0.3);
+        }
+
+        /* Kleuren overgenomen van het bord */
+        .score-10 { background-color: var(--kleur-10); color: #000; }
+        .score-9  { background-color: var(--kleur-9);  color: #FFF; }
+        .score-8  { background-color: var(--kleur-8);  color: #FFF; }
+        .score-7  { background-color: var(--kleur-7);  color: #FFF; }
+        .score-6  { background-color: var(--kleur-6);  color: #000; }
+        .score-0  { background-color: var(--kleur-mis); color: #FFF; }
+
+    </style>
+</head>
+<body>
+
+    <div class="paneel-links">
+        <h1>Totaal Score</h1>
+        <div class="score-display" id="totaalScore">0</div>
+        <div class="historiek" id="scoreHistoriek">Schoten: -</div>
+        <div class="actie-knoppen">
+            <button class="btn-actie" onclick="undo()" style="background-color: #E0A800;">Oeps ↩</button>
+            <button class="btn-actie" onclick="resetScore()" style="background-color: #DC3545;">Nieuw Spel</button>
+        </div>
+    </div>
+
+    <div class="paneel-rechts">
+        <button class="btn-score score-10" onclick="addScore(10)">10</button>
+        <button class="btn-score score-9" onclick="addScore(9)">9</button>
+        <button class="btn-score score-8" onclick="addScore(8)">8</button>
+        <button class="btn-score score-7" onclick="addScore(7)">7</button>
+        <button class="btn-score score-6" onclick="addScore(6)">6</button>
+        <button class="btn-score score-0" onclick="addScore(0)">Mis</button>
+    </div>
+
+    <script>
+        let scores = [];
+
+        function updateScherm() {
+            const totaal = scores.reduce((a, b) => a + b, 0);
+            document.getElementById('totaalScore').innerText = totaal;
+            
+            if (scores.length === 0) {
+                document.getElementById('scoreHistoriek').innerText = "Schoten: -";
+            } else {
+                // Laat de laatste 5 schoten zien
+                const laatsteSchoten = scores.slice(-5).join(' + ');
+                document.getElementById('scoreHistoriek').innerText = "Schoten: " + laatsteSchoten + (scores.length > 5 ? ' ...' : '');
+            }
+        }
+
+        function addScore(punten) {
+            scores.push(punten);
+            updateScherm();
+            
+            // Simpele speelse animatie op de score
+            const display = document.getElementById('totaalScore');
+            display.style.transform = 'scale(1.2)';
+            setTimeout(() => display.style.transform = 'scale(1)', 150);
+        }
+
+        function undo() {
+            if (scores.length > 0) {
+                scores.pop();
+                updateScherm();
+            }
+        }
+
+        function resetScore() {
+            if(confirm("Wil je een nieuw spel beginnen?")) {
+                scores = [];
+                updateScherm();
+            }
+        }
+
+        // Service Worker Registratie voor offline gebruik
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js');
+            });
+        }
+    </script>
+</body>
+</html>
