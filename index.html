@@ -8,131 +8,106 @@
     <link rel="manifest" href="manifest.json">
     <style>
         :root {
-            --kleur-10: #FBD036; /* Geel */
-            --kleur-9: #F05359;  /* Rood/Roze */
-            --kleur-8: #52B5D9;  /* Lichtblauw */
-            --kleur-7: #2F4159;  /* Donkerblauw */
-            --kleur-6: #FFFFFF;  /* Wit */
-            --kleur-mis: #444444; /* Grijs voor 0 */
+            --kleur-10: #FBD036;
+            --kleur-9: #F05359;
+            --kleur-8: #52B5D9;
+            --kleur-7: #2F4159;
+            --kleur-6: #FFFFFF;
+            --kleur-mis: #444444;
             --bg-color: #1E1E24;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Speels lettertype */
+            margin: 0; padding: 0;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
             background-color: var(--bg-color);
             color: white;
             display: flex;
-            height: 100vh;
-            width: 100vw;
+            height: 100vh; width: 100vw;
             overflow: hidden;
-            user-select: none; /* Voorkomt tekst selecteren bij snel tikken */
+            user-select: none;
         }
 
-        /* Waarschuwing als de tablet rechtop staat */
         @media screen and (orientation: portrait) {
             body::before {
                 content: "Draai je tablet horizontaal! 🔄";
-                position: absolute;
-                top: 0; left: 0; right: 0; bottom: 0;
-                background: var(--kleur-8);
-                color: white;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 3rem;
-                z-index: 1000;
-                text-align: center;
-                padding: 20px;
+                position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+                background: var(--kleur-8); color: white;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 3rem; z-index: 1000; text-align: center; padding: 20px;
             }
         }
 
-        .paneel-links {
-            flex: 1;
-            display: flex;
+        /* Scherm Wissel Logica */
+        .scherm { display: none; width: 100%; height: 100%; }
+        .actief-scherm { display: flex; }
+
+        /* Setup Scherm */
+        #setup-scherm {
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             background-color: #2A2A35;
-            padding: 20px;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-            z-index: 2;
         }
+        .setup-box {
+            background: #3A3A48; padding: 30px; border-radius: 20px;
+            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 500px; width: 90%;
+        }
+        .setup-box h1 { color: var(--kleur-10); margin-top: 0; }
+        .input-groep { margin-bottom: 20px; text-align: left; }
+        label { display: block; font-size: 1.2rem; margin-bottom: 8px; font-weight: bold; color: var(--kleur-8); }
+        input, select { 
+            width: 100%; padding: 12px; font-size: 1.2rem; font-family: inherit;
+            border-radius: 10px; border: none; box-sizing: border-box; background: #FFF;
+        }
+        .speler-inputs { display: grid; gap: 10px; margin-top: 10px; }
+        
+        .btn-start {
+            background-color: #28A745; color: white; font-size: 1.8rem;
+            padding: 15px 40px; border: none; border-radius: 15px;
+            cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px;
+            box-shadow: 0 6px 0px #1E7E34;
+        }
+        .btn-start:active { transform: translateY(6px); box-shadow: 0 0px 0px #1E7E34; }
 
+        /* Game Scherm */
+        .paneel-links {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: space-between; align-items: center;
+            background-color: #2A2A35; padding: 20px; box-shadow: 5px 0 15px rgba(0,0,0,0.5); z-index: 2;
+        }
         .paneel-rechts {
-            flex: 2;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 15px;
-            padding: 20px;
-            background-color: var(--bg-color);
+            flex: 1.5; display: grid; grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr); gap: 15px; padding: 20px;
         }
 
-        h1 {
-            margin: 0;
-            font-size: 2.5rem;
-            color: var(--kleur-8);
-            text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
-        }
+        .speler-info { text-align: center; width: 100%; }
+        .speler-naam { font-size: 3rem; color: var(--kleur-10); margin: 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.4); }
+        .doel-tekst { font-size: 1.2rem; color: #AAA; }
 
-        .score-display {
-            font-size: 8rem;
-            font-weight: bold;
-            margin: 20px 0;
-            color: var(--kleur-10);
-            text-shadow: 4px 4px 0px rgba(0,0,0,0.4);
-        }
+        /* Visueel Doelwit */
+        .visueel-doelwit { position: relative; width: 180px; height: 180px; margin: 10px auto; }
+        .visueel-doelwit svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .doelwit-grijs { filter: grayscale(100%) opacity(20%); }
+        .doelwit-kleur { clip-path: inset(100% 0 0 0); transition: clip-path 0.5s ease-out; }
 
-        .historiek {
-            font-size: 1.5rem;
-            min-height: 40px;
-            margin-bottom: 30px;
-            color: #AAAAAA;
-        }
+        .score-display { font-size: 4rem; font-weight: bold; color: white; text-shadow: 2px 2px 0px rgba(0,0,0,0.4); margin: 5px 0; }
 
-        .actie-knoppen {
-            display: flex;
-            gap: 15px;
-        }
-
+        .actie-knoppen { display: flex; gap: 10px; width: 100%; }
         .btn-actie {
-            padding: 15px 30px;
-            font-size: 1.5rem;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            font-weight: bold;
-            background-color: #444;
-            color: white;
-            transition: transform 0.1s;
+            flex: 1; padding: 15px 10px; font-size: 1.2rem; border: none; border-radius: 12px;
+            cursor: pointer; font-weight: bold; color: white;
         }
-
-        .btn-actie:active {
-            transform: scale(0.95);
-        }
+        .btn-actie:active { opacity: 0.8; }
 
         .btn-score {
-            border: none;
-            border-radius: 20px;
-            font-size: 5rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 0px rgba(0,0,0,0.3);
-            transition: transform 0.1s, box-shadow 0.1s;
-            font-family: inherit;
+            border: none; border-radius: 20px; font-size: 4.5rem; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 0px rgba(0,0,0,0.3); transition: transform 0.1s, box-shadow 0.1s; font-family: inherit;
         }
+        .btn-score:active { transform: translateY(8px); box-shadow: 0 0px 0px rgba(0,0,0,0.3); }
 
-        .btn-score:active {
-            transform: translateY(8px);
-            box-shadow: 0 0px 0px rgba(0,0,0,0.3);
-        }
-
-        /* Kleuren overgenomen van het bord */
         .score-10 { background-color: var(--kleur-10); color: #000; }
         .score-9  { background-color: var(--kleur-9);  color: #FFF; }
         .score-8  { background-color: var(--kleur-8);  color: #FFF; }
@@ -140,75 +115,190 @@
         .score-6  { background-color: var(--kleur-6);  color: #000; }
         .score-0  { background-color: var(--kleur-mis); color: #FFF; }
 
+        /* Confetti bij winst */
+        .gewonnen-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8); z-index: 10; display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+        .gewonnen-tekst { font-size: 5rem; color: var(--kleur-10); text-shadow: 0 0 20px var(--kleur-10); text-align: center; }
     </style>
 </head>
 <body>
 
-    <div class="paneel-links">
-        <h1>Totaal Score</h1>
-        <div class="score-display" id="totaalScore">0</div>
-        <div class="historiek" id="scoreHistoriek">Schoten: -</div>
-        <div class="actie-knoppen">
-            <button class="btn-actie" onclick="undo()" style="background-color: #E0A800;">Oeps ↩</button>
-            <button class="btn-actie" onclick="resetScore()" style="background-color: #DC3545;">Nieuw Spel</button>
+    <!-- SCHERM 1: INSTELLINGEN -->
+    <div id="setup-scherm" class="scherm actief-scherm">
+        <div class="setup-box">
+            <h1>🏹 Start Spel</h1>
+            
+            <div class="input-groep">
+                <label>Tot hoeveel punten spelen we?</label>
+                <input type="number" id="doelScore" value="50" min="10" step="10">
+            </div>
+
+            <div class="input-groep">
+                <label>Aantal spelers:</label>
+                <select id="aantalSpelers" onchange="genereerSpelerInputs()">
+                    <option value="1">1 Speler</option>
+                    <option value="2" selected>2 Spelers</option>
+                    <option value="3">3 Spelers</option>
+                    <option value="4">4 Spelers</option>
+                </select>
+                <div id="spelerNamenDiv" class="speler-inputs">
+                    <!-- Wordt gevuld via JS -->
+                </div>
+            </div>
+
+            <button class="btn-start" onclick="startSpel()">Starten!</button>
         </div>
     </div>
 
-    <div class="paneel-rechts">
-        <button class="btn-score score-10" onclick="addScore(10)">10</button>
-        <button class="btn-score score-9" onclick="addScore(9)">9</button>
-        <button class="btn-score score-8" onclick="addScore(8)">8</button>
-        <button class="btn-score score-7" onclick="addScore(7)">7</button>
-        <button class="btn-score score-6" onclick="addScore(6)">6</button>
-        <button class="btn-score score-0" onclick="addScore(0)">Mis</button>
+    <!-- SCHERM 2: HET SPEL -->
+    <div id="game-scherm" class="scherm">
+        <div class="paneel-links">
+            <div class="speler-info">
+                <h2 class="speler-naam" id="huidigeSpelerNaam">Naam</h2>
+                <div class="doel-tekst">Speelt tot <span id="weergaveDoelScore">50</span></div>
+            </div>
+
+            <div class="visueel-doelwit">
+                <!-- Grijze achtergrond -->
+                <svg viewBox="0 0 100 100" class="doelwit-grijs">
+                    <circle cx="50" cy="50" r="48" fill="#FFF" stroke="#000" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="38" fill="#2F4159"/>
+                    <circle cx="50" cy="50" r="28" fill="#52B5D9"/>
+                    <circle cx="50" cy="50" r="18" fill="#F05359"/>
+                    <circle cx="50" cy="50" r="8"  fill="#FBD036"/>
+                </svg>
+                <!-- Gekleurde vulling (wordt aangestuurd via JS clip-path) -->
+                <svg viewBox="0 0 100 100" class="doelwit-kleur" id="doelwitVulling">
+                    <circle cx="50" cy="50" r="48" fill="#FFF" stroke="#000" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="38" fill="#2F4159"/>
+                    <circle cx="50" cy="50" r="28" fill="#52B5D9"/>
+                    <circle cx="50" cy="50" r="18" fill="#F05359"/>
+                    <circle cx="50" cy="50" r="8"  fill="#FBD036"/>
+                </svg>
+            </div>
+
+            <div class="score-display">
+                <span id="huidigeScore">0</span>
+            </div>
+
+            <div class="actie-knoppen">
+                <button class="btn-actie" onclick="undo()" style="background-color: #E0A800;">Oeps ↩</button>
+                <button class="btn-actie" onclick="volgendeSpeler()" style="background-color: #17A2B8;" id="btnVolgende">Volgende ➔</button>
+            </div>
+        </div>
+
+        <div class="paneel-rechts">
+            <button class="btn-score score-10" onclick="voegScoreToe(10)">10</button>
+            <button class="btn-score score-9" onclick="voegScoreToe(9)">9</button>
+            <button class="btn-score score-8" onclick="voegScoreToe(8)">8</button>
+            <button class="btn-score score-7" onclick="voegScoreToe(7)">7</button>
+            <button class="btn-score score-6" onclick="voegScoreToe(6)">6</button>
+            <button class="btn-score score-0" onclick="voegScoreToe(0)">Mis</button>
+        </div>
+    </div>
+
+    <!-- SCHERM OVERLAY: GEWONNEN -->
+    <div id="gewonnen-scherm" class="gewonnen-overlay">
+        <div class="gewonnen-tekst" id="winnaarTekst">Jorden Wint!</div>
+        <br>
+        <button class="btn-start" style="width: auto; padding: 20px 50px;" onclick="terugNaarMenu()">Nieuw Spel</button>
     </div>
 
     <script>
-        let scores = [];
+        let spelers = [];
+        let huidigeSpelerIndex = 0;
+        let doelScore = 50;
+        
+        // Standaard namen om het makkelijk te maken
+        const standaardNamen = ["Lou", "Noé", "Jorden", "Mama"];
 
-        function updateScherm() {
-            const totaal = scores.reduce((a, b) => a + b, 0);
-            document.getElementById('totaalScore').innerText = totaal;
+        function genereerSpelerInputs() {
+            const aantal = document.getElementById('aantalSpelers').value;
+            const container = document.getElementById('spelerNamenDiv');
+            container.innerHTML = '';
             
-            if (scores.length === 0) {
-                document.getElementById('scoreHistoriek').innerText = "Schoten: -";
-            } else {
-                // Laat de laatste 5 schoten zien
-                const laatsteSchoten = scores.slice(-5).join(' + ');
-                document.getElementById('scoreHistoriek').innerText = "Schoten: " + laatsteSchoten + (scores.length > 5 ? ' ...' : '');
+            for(let i = 0; i < aantal; i++) {
+                const defaultNaam = standaardNamen[i] || `Speler ${i+1}`;
+                container.innerHTML += `<input type="text" id="naamSpeler${i}" value="${defaultNaam}">`;
             }
         }
 
-        function addScore(punten) {
-            scores.push(punten);
-            updateScherm();
+        function startSpel() {
+            doelScore = parseInt(document.getElementById('doelScore').value) || 50;
+            document.getElementById('weergaveDoelScore').innerText = doelScore;
             
-            // Simpele speelse animatie op de score
-            const display = document.getElementById('totaalScore');
-            display.style.transform = 'scale(1.2)';
-            setTimeout(() => display.style.transform = 'scale(1)', 150);
+            const aantal = document.getElementById('aantalSpelers').value;
+            spelers = [];
+            for(let i = 0; i < aantal; i++) {
+                const naam = document.getElementById(`naamSpeler${i}`).value || `Speler ${i+1}`;
+                spelers.push({ naam: naam, scores: [], totaal: 0 });
+            }
+
+            huidigeSpelerIndex = 0;
+            
+            // Verberg Next knop als er maar 1 speler is
+            document.getElementById('btnVolgende').style.display = (spelers.length > 1) ? 'block' : 'none';
+
+            wisselScherm('game-scherm');
+            updateUI();
+        }
+
+        function wisselScherm(schermId) {
+            document.getElementById('setup-scherm').classList.remove('actief-scherm');
+            document.getElementById('game-scherm').classList.remove('actief-scherm');
+            document.getElementById(schermId).classList.add('actief-scherm');
+        }
+
+        function updateUI() {
+            const speler = spelers[huidigeSpelerIndex];
+            document.getElementById('huidigeSpelerNaam').innerText = speler.naam;
+            document.getElementById('huidigeScore').innerText = speler.totaal;
+
+            // Bereken vul-percentage (maximaal 100%)
+            let percentage = (speler.totaal / doelScore) * 100;
+            if (percentage > 100) percentage = 100;
+            
+            // clip-path inset(TOP RIGHT BOTTOM LEFT) - We knippen de top weg
+            const clipWaarde = 100 - percentage;
+            document.getElementById('doelwitVulling').style.clipPath = `inset(${clipWaarde}% 0 0 0)`;
+
+            // Check op winst
+            if(speler.totaal >= doelScore) {
+                document.getElementById('winnaarTekst').innerText = `${speler.naam} Wint! 🏆`;
+                document.getElementById('gewonnen-scherm').style.display = 'flex';
+            }
+        }
+
+        function voegScoreToe(punten) {
+            spelers[huidigeSpelerIndex].scores.push(punten);
+            spelers[huidigeSpelerIndex].totaal += punten;
+            updateUI();
         }
 
         function undo() {
-            if (scores.length > 0) {
-                scores.pop();
-                updateScherm();
+            const speler = spelers[huidigeSpelerIndex];
+            if (speler.scores.length > 0) {
+                const laatsteScore = speler.scores.pop();
+                speler.totaal -= laatsteScore;
+                updateUI();
             }
         }
 
-        function resetScore() {
-            if(confirm("Wil je een nieuw spel beginnen?")) {
-                scores = [];
-                updateScherm();
-            }
+        function volgendeSpeler() {
+            huidigeSpelerIndex = (huidigeSpelerIndex + 1) % spelers.length;
+            updateUI();
         }
 
-        // Service Worker Registratie voor offline gebruik
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js');
-            });
+        function terugNaarMenu() {
+            document.getElementById('gewonnen-scherm').style.display = 'none';
+            wisselScherm('setup-scherm');
         }
+
+        // Genereer de inputs de eerste keer inladen
+        window.onload = genereerSpelerInputs;
     </script>
 </body>
 </html>
