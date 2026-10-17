@@ -83,8 +83,8 @@
         /* Game Scherm Layout */
         #game-scherm { gap: 10px; padding: 10px; }
         .kolom-links { flex: 0.8; display: flex; flex-direction: column; overflow-y: auto; }
-        .kolom-midden { flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; }
-        .kolom-rechts { flex: 2; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 10px; }
+        .kolom-midden { flex: 1.3; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; }
+        .kolom-rechts { flex: 1.9; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 10px; }
 
         /* Leaderboard */
         .speler-rij {
@@ -103,12 +103,25 @@
         .mini-doelwit svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
         /* Middenpaneel Info */
-        .speler-naam { font-size: 2.8rem; color: var(--kleur-10); margin: 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.5); line-height: 1; }
+        .speler-naam { font-size: 2.5rem; color: var(--kleur-10); margin: 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.5); line-height: 1; }
         .doel-tekst { font-size: 1rem; color: #EEE; margin-bottom: 5px; }
-        .pijlen-indicator { font-size: 1.8rem; margin: 5px 0; letter-spacing: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .pijlen-indicator { font-size: 1.5rem; margin: 5px 0; letter-spacing: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+
+        /* Statistieken */
+        .speler-stats {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0 auto 10px auto;
+            padding: 8px 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            line-height: 1.5;
+            width: max-content;
+            max-width: 95%;
+        }
 
         /* Groot Visueel Doelwit */
-        .visueel-doelwit { position: relative; width: 150px; height: 150px; margin: auto; }
+        .visueel-doelwit { position: relative; width: 140px; height: 140px; margin: auto; }
         .visueel-doelwit svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         .doelwit-grijs { filter: grayscale(100%) opacity(30%); }
         .doelwit-kleur { clip-path: inset(100% 0 0 0); transition: clip-path 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -120,11 +133,11 @@
         }
         .hit-marker { animation: plop 0.3s ease-out forwards; transform-origin: center; }
 
-        .score-display { font-size: 4rem; font-weight: bold; color: white; text-shadow: 3px 3px 0px rgba(0,0,0,0.5); margin: 5px 0; }
+        .score-display { font-size: 3.5rem; font-weight: bold; color: white; text-shadow: 3px 3px 0px rgba(0,0,0,0.5); margin: 0; }
 
-        .actie-knoppen { display: flex; gap: 10px; width: 100%; margin-top: auto; }
+        .actie-knoppen { display: flex; gap: 8px; width: 100%; margin-top: auto; }
         .btn-actie {
-            padding: 12px 10px; font-size: 1rem; border: none; border-radius: 12px;
+            padding: 10px 8px; font-size: 0.9rem; border: none; border-radius: 12px;
             cursor: pointer; font-weight: bold; color: white; box-shadow: 0 4px 0px rgba(0,0,0,0.3);
         }
         .btn-actie:active { transform: translateY(4px); box-shadow: 0 0px 0px rgba(0,0,0,0.3); }
@@ -237,9 +250,13 @@
             <div class="score-display">
                 <span id="huidigeScore">0</span>
             </div>
+            
+            <div id="spelerStats" class="speler-stats">
+                <!-- Statistieken via JS -->
+            </div>
 
             <div class="actie-knoppen">
-                <button class="btn-actie" onclick="bevestigStop()" style="background-color: #DC3545; flex: 0.4;" title="Stop Spel">❌</button>
+                <button class="btn-actie" onclick="bevestigStop()" style="background-color: #DC3545; flex: 0.3;" title="Stop Spel">❌</button>
                 <button class="btn-actie" onclick="undo()" style="background-color: #E0A800; flex: 1;">Oeps ↩</button>
                 <button class="btn-actie" onclick="volgendeSpelerHandmatig()" style="background-color: #17A2B8; flex: 1;" id="btnVolgende">Volgende ➔</button>
             </div>
@@ -269,7 +286,7 @@
         let pijlenGeschoten = 0;
         let geschiedenis = [];
         let autoNextTimeout = null;
-        let isBeurtWissel = false; // Voorkomt klikken tijdens het doorwisselen
+        let isBeurtWissel = false;
         let audioCtx = null;
         
         const standaardNamen = ["Lou", "Noé"];
@@ -345,7 +362,8 @@
             for(let i = 0; i < aantalSpelersGekozen; i++) {
                 const naamInput = document.getElementById(`naamSpeler${i}`);
                 const naam = naamInput ? naamInput.value : `Speler ${i+1}`;
-                spelers.push({ naam: naam, scores: [], totaal: 0 });
+                // Let op: we slaan nu ook de hitMarkers op per speler!
+                spelers.push({ naam: naam, scores: [], totaal: 0, hitMarkers: [] });
             }
 
             document.getElementById('btnVolgende').style.display = (spelers.length > 1) ? 'block' : 'none';
@@ -383,7 +401,7 @@
         }
 
         function voegScoreToe(punten) {
-            if (isBeurtWissel) return; // Blokkeer kliks als hij al aan het wisselen is
+            if (isBeurtWissel) return; 
 
             initAudio();
             clearTimeout(autoNextTimeout);
@@ -392,8 +410,10 @@
             const marker = tekenHitMarker(punten);
             document.getElementById('hit-markers').appendChild(marker);
 
-            spelers[huidigeSpelerIndex].scores.push(punten);
-            spelers[huidigeSpelerIndex].totaal += punten;
+            const speler = spelers[huidigeSpelerIndex];
+            speler.scores.push(punten);
+            speler.totaal += punten;
+            speler.hitMarkers.push(marker.outerHTML); // Bewaar de marker html
             
             geschiedenis.push({
                 type: 'score',
@@ -406,15 +426,14 @@
             pijlenGeschoten++;
             updateUI();
 
-            if(spelers[huidigeSpelerIndex].totaal >= doelScore) {
-                document.getElementById('winnaarTekst').innerText = `${spelers[huidigeSpelerIndex].naam} Wint! 🏆`;
+            if(speler.totaal >= doelScore) {
+                document.getElementById('winnaarTekst').innerText = `${speler.naam} Wint! 🏆`;
                 document.getElementById('gewonnen-scherm').style.display = 'flex';
                 return;
             }
 
-            // Gaat automatisch naar volgende beurt, OOK als je alleen speelt (reset de pijlen)
             if (pijlenGeschoten >= aantalPijlenPerBeurt) {
-                isBeurtWissel = true; // Zet het slotje erop
+                isBeurtWissel = true; 
                 autoNextTimeout = setTimeout(() => {
                     volgendeSpelerVerwerking(false);
                 }, 1200);
@@ -434,8 +453,10 @@
             
             huidigeSpelerIndex = (huidigeSpelerIndex + 1) % spelers.length;
             pijlenGeschoten = 0;
-            isBeurtWissel = false; // Haal het slotje er weer af
-            document.getElementById('hit-markers').innerHTML = '';
+            isBeurtWissel = false; 
+            
+            // Laad de opgeslagen hit markers van de nieuwe speler in
+            document.getElementById('hit-markers').innerHTML = spelers[huidigeSpelerIndex].hitMarkers.join('');
             
             updateUI();
         }
@@ -444,7 +465,7 @@
             if (geschiedenis.length === 0) return;
             
             clearTimeout(autoNextTimeout);
-            isBeurtWissel = false; // Haal slotje eraf bij undo
+            isBeurtWissel = false; 
             
             const laatsteActie = geschiedenis.pop();
 
@@ -458,15 +479,12 @@
                 const speler = spelers[huidigeSpelerIndex];
                 speler.scores.pop();
                 speler.totaal -= laatsteActie.punten;
+                speler.hitMarkers.pop(); // Verwijder de laatste bewaarde marker
             }
 
-            document.getElementById('hit-markers').innerHTML = '';
-            for (let i = geschiedenis.length - pijlenGeschoten; i < geschiedenis.length; i++) {
-                if(geschiedenis[i].type === 'score') {
-                    document.getElementById('hit-markers').insertAdjacentHTML('beforeend', geschiedenis[i].markerHTML);
-                }
-            }
-
+            // Herlaad de markers na de undo
+            document.getElementById('hit-markers').innerHTML = spelers[huidigeSpelerIndex].hitMarkers.join('');
+            
             updateUI();
         }
 
@@ -518,12 +536,30 @@
             document.getElementById('huidigeSpelerNaam').innerText = speler.naam;
             document.getElementById('huidigeScore').innerText = speler.totaal;
             
-            // Zorg dat de indicator niet meer pijlen tekent dan ingesteld
             let getoondePijlen = Math.min(pijlenGeschoten, aantalPijlenPerBeurt);
             let restPijlen = Math.max(0, aantalPijlenPerBeurt - pijlenGeschoten);
             let indicator = '🏹'.repeat(getoondePijlen) + '⚪'.repeat(restPijlen);
-            
             document.getElementById('pijlenIndicator').innerText = indicator;
+
+            // --- Subtiele Statistieken Berekenen ---
+            const totaalPijlen = speler.scores.length;
+            let tens = 0, sixes = 0, misses = 0;
+            
+            speler.scores.forEach(s => {
+                if (s === 10) tens++;
+                if (s === 6) sixes++;
+                if (s === 0) misses++;
+            });
+
+            const pct = (val) => totaalPijlen > 0 ? Math.round((val / totaalPijlen) * 100) : 0;
+            const beurten = totaalPijlen / aantalPijlenPerBeurt;
+            const avg = beurten > 0 ? (speler.totaal / beurten).toFixed(1) : 0;
+
+            document.getElementById('spelerStats').innerHTML = `
+                🎯 Roos: ${tens} (${pct(tens)}%) &nbsp;•&nbsp; ⚪ Zes: ${sixes} (${pct(sixes)}%) &nbsp;•&nbsp; ❌ Mis: ${misses} (${pct(misses)}%)<br>
+                📊 Gem. per beurt: ${avg}
+            `;
+            // ---------------------------------------
 
             renderLeaderboard();
 
