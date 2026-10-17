@@ -22,7 +22,7 @@
 
         @media screen and (orientation: portrait) {
             body::before {
-                content: "Draai je tablet horizontaal! 🔄";
+                content: "Draai de tablet horizontaal! 🔄";
                 position: absolute; top: 0; left: 0; right: 0; bottom: 0;
                 background: var(--kleur-8); color: white;
                 display: flex; align-items: center; justify-content: center;
@@ -87,8 +87,6 @@
         #leaderboardLijst { flex: 1; overflow-y: auto; padding-right: 5px; }
         
         .kolom-midden { flex: 1.3; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; }
-        
-        /* AANGEPAST: De rechterkolom is nu flexibel voor het interactieve bord */
         .kolom-rechts { flex: 1.9; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
 
         /* Leaderboard */
@@ -137,19 +135,11 @@
             padding-top: 4px; margin-top: 2px; font-weight: bold; color: var(--kleur-10);
         }
 
-        /* Kleine Visuele Progressie Doelwit (Midden) */
+        /* Voortgangs Doelwit (Midden) */
         .visueel-doelwit { position: relative; width: 140px; height: 140px; margin: auto; }
         .visueel-doelwit svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         .doelwit-grijs { filter: grayscale(100%) opacity(30%); }
         .doelwit-kleur { clip-path: inset(100% 0 0 0); transition: clip-path 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* Hit Marker Animatie */
-        @keyframes plop {
-            0% { transform: scale(0); opacity: 0; }
-            70% { transform: scale(1.5); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .hit-marker { animation: plop 0.3s ease-out forwards; transform-origin: center; pointer-events: none; }
 
         .score-display { font-size: 3.5rem; font-weight: bold; color: white; text-shadow: 3px 3px 0px rgba(0,0,0,0.5); margin: 0; }
 
@@ -159,6 +149,20 @@
             cursor: pointer; font-weight: bold; color: white; box-shadow: 0 4px 0px rgba(0,0,0,0.3);
         }
         .btn-actie:active { transform: translateY(4px); box-shadow: 0 0px 0px rgba(0,0,0,0.3); }
+
+        /* --- NIEUW: ZWEVENDE SCORE ANIMATIE --- */
+        @keyframes zweefAnimatie {
+            0% { opacity: 0; transform: translateY(3px) scale(0.5); }
+            15% { opacity: 1; transform: translateY(0px) scale(1.1); }
+            30% { transform: translateY(-2px) scale(1); }
+            100% { opacity: 0; transform: translateY(-12px) scale(1); }
+        }
+        .zwevende-score {
+            animation: zweefAnimatie 1.2s ease-out forwards;
+            pointer-events: none; /* Blokkeert geen nieuwe kliks */
+            transform-box: fill-box;
+            transform-origin: center center;
+        }
 
         .gewonnen-overlay {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
@@ -176,7 +180,7 @@
             <h1>🏹 Tijd om te schieten! 🎯</h1>
             
             <div class="input-groep">
-                <label>🏆 Hoeveel punten om te winnen?</label>
+                <label>🏆 Punten om te winnen:</label>
                 <div class="doel-knoppen">
                     <button class="btn-optie" onclick="kiesDoel(20, this)">20 ⭐</button>
                     <button class="btn-optie" onclick="kiesDoel(40, this)">40 🌟</button>
@@ -187,7 +191,7 @@
             </div>
 
             <div class="input-groep">
-                <label>🎯 Hoeveel pijlen mag je schieten?</label>
+                <label>🎯 Pijlen per beurt:</label>
                 <div class="doel-knoppen" id="knoppenPijlen">
                     <button class="btn-optie" onclick="kiesPijlen(1, this)">1 🏹</button>
                     <button class="btn-optie gekozen" onclick="kiesPijlen(2, this)">2 🏹</button>
@@ -197,7 +201,7 @@
             </div>
 
             <div class="input-groep">
-                <label>👥 Met hoeveel gaan we spelen?</label>
+                <label>👥 Aantal Spelers:</label>
                 <div class="spelers-grid" id="knoppenSpelers">
                     <button class="btn-optie" onclick="kiesAantalSpelers(1, this)">1 👤</button>
                     <button class="btn-optie gekozen" onclick="kiesAantalSpelers(2, this)">2 👤</button>
@@ -235,7 +239,6 @@
                 <div class="pijlen-indicator" id="pijlenIndicator">🎯🎯</div>
             </div>
 
-            <!-- Dit middelste doelwit toont enkel de progressie naar 100% (geen pijltjes meer hier) -->
             <div class="visueel-doelwit">
                 <svg viewBox="0 0 100 100" class="doelwit-grijs">
                     <circle cx="50" cy="50" r="48" fill="#FFF" stroke="#000" stroke-width="2"/>
@@ -268,11 +271,12 @@
             </div>
         </div>
 
-        <!-- NIEUW: De Grote Interactieve Rechterkolom -->
+        <!-- De Grote Interactieve Rechterkolom (Cijferknoppen zijn weg!) -->
         <div class="kolom-rechts">
             <h3 style="margin:0 0 15px 0; color: #FFF; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Tik op het bord om te schieten! 👇</h3>
             
-            <svg id="klikBord" viewBox="0 0 100 100" style="width: 100%; max-height: 80vh; cursor: crosshair; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.4));" onclick="schietPijl(event)">
+            <!-- overflow="visible" zorgt dat de zwevende tekst niet wordt afgesneden aan de randen -->
+            <svg id="klikBord" viewBox="0 0 100 100" style="width: 100%; max-height: 80vh; cursor: crosshair; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.4)); overflow: visible;" onclick="schietPijl(event)">
                 <defs>
                     <linearGradient id="bordGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stop-color="#74C8D4"/>
@@ -280,17 +284,14 @@
                     </linearGradient>
                 </defs>
                 
-                <!-- Basisbord met afgeronde hoeken -->
                 <rect x="0" y="0" width="100" height="100" rx="15" fill="url(#bordGrad)" />
                 
-                <!-- De exacte ringen -->
                 <circle cx="50" cy="50" r="45" fill="#FFFFFF" stroke="#000" stroke-width="0.5"/> <!-- Score 6 -->
                 <circle cx="50" cy="50" r="36" fill="#2F4159"/> <!-- Score 7 -->
                 <circle cx="50" cy="50" r="27" fill="#52B5D9"/> <!-- Score 8 -->
                 <circle cx="50" cy="50" r="18" fill="#F05359"/> <!-- Score 9 -->
                 <circle cx="50" cy="50" r="9"  fill="#FBD036"/> <!-- Score 10 -->
                 
-                <!-- Container voor de bolletjes (hit markers) -->
                 <g id="hit-markers-rechts"></g>
             </svg>
         </div>
@@ -305,7 +306,7 @@
         let spelers = [];
         let huidigeSpelerIndex = 0;
         let doelScore = 60;
-        let aantalPijlenPerBeurt = 2;
+        let aantalPijlenPerBeurt = 2; 
         let aantalSpelersGekozen = 2;
         let pijlenGeschoten = 0;
         let geschiedenis = [];
@@ -454,7 +455,7 @@
             document.getElementById(schermId).classList.add('actief-scherm');
         }
 
-        // NIEUW: Deze functie rekent uit waar de klik is en kent direct de score toe
+        // Berekent de coördinaten en vult de juiste score in
         function schietPijl(event) {
             if (isBeurtWissel) return;
 
@@ -463,10 +464,10 @@
             pt.x = event.clientX;
             pt.y = event.clientY;
             
-            // Rekent scherm-klik om naar de 0-100 schaal van de SVG
+            // Rekent de klik op het scherm om naar het interne assenstelsel van de SVG (0-100)
             const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
             
-            // Afstand berekenen vanaf het middelpunt (50, 50)
+            // Afstand berekenen vanaf het exacte middelpunt (50, 50)
             const dx = svgP.x - 50;
             const dy = svgP.y - 50;
             const distance = Math.sqrt(dx*dx + dy*dy);
@@ -477,12 +478,12 @@
             else if (distance <= 27) score = 8;
             else if (distance <= 36) score = 7;
             else if (distance <= 45) score = 6;
-            else score = 0; // Geklikt op de hoeken naast de ringen
+            else score = 0; // Geklikt buiten de witte ring
 
             voegScoreToe(score, svgP.x, svgP.y);
         }
 
-        function voegScoreToe(punten, x, y) {
+        function voegScoreToe(punten, clickX, clickY) {
             initAudio();
             clearTimeout(autoNextTimeout);
             
@@ -490,14 +491,30 @@
             else if (punten === 0) speelGeluid('mis');
             else speelGeluid('swoosh');
 
-            // Plaatst het bolletje EXACT op de coördinaten van je klik
-            const markerHTML = `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="2.5" fill="#111" stroke="#FFF" stroke-width="0.8" class="hit-marker" />`;
+            // 1. TEKEN HET BOLLETJE EXACT WAAR GEKLIKT IS
+            const markerHTML = `<circle cx="${clickX.toFixed(2)}" cy="${clickY.toFixed(2)}" r="2.5" fill="#111" stroke="#FFF" stroke-width="0.8" />`;
             document.getElementById('hit-markers-rechts').insertAdjacentHTML('beforeend', markerHTML);
 
+            // 2. VOEG VISUELE ZWEVENDE SCORE TOE
+            const zweefId = 'zweef-' + Date.now();
+            const scoreKleur = punten === 10 ? "#FBD036" : (punten === 0 ? "#FF3333" : "#FFFFFF");
+            const scoreTekst = punten === 0 ? "Mis!" : `+${punten}`;
+            
+            // Tekst wordt ietsje boven het bolletje geplaatst (y - 4) en geanimeerd met CSS class 'zwevende-score'
+            const zweefHTML = `<text id="${zweefId}" x="${clickX.toFixed(2)}" y="${(clickY - 4).toFixed(2)}" text-anchor="middle" font-size="7" font-weight="bold" fill="${scoreKleur}" stroke="#000" stroke-width="0.8" class="zwevende-score" style="paint-order: stroke fill;">${scoreTekst}</text>`;
+            document.getElementById('hit-markers-rechts').insertAdjacentHTML('beforeend', zweefHTML);
+            
+            // Verwijder de zwevende tekst netjes nadat de animatie klaar is (om het geheugen schoon te houden)
+            setTimeout(() => {
+                const el = document.getElementById(zweefId);
+                if (el) el.remove();
+            }, 1200);
+
+            // Sla de acties op voor de score en undo functionaliteit
             const speler = spelers[huidigeSpelerIndex];
             speler.scores.push(punten);
             speler.totaal += punten;
-            speler.hitMarkers.push(markerHTML); 
+            speler.hitMarkers.push(markerHTML); // Sla ENKEL het bolletje op (de zweeftekst verdwijnt toch)
             
             geschiedenis.push({
                 type: 'score',
@@ -522,7 +539,7 @@
                 isBeurtWissel = true; 
                 autoNextTimeout = setTimeout(() => {
                     volgendeSpelerVerwerking(false);
-                }, 1200);
+                }, 1200); // 1.2s wachttijd geeft de laatste zwevende score tijd om mooi in beeld te komen
             }
         }
 
@@ -541,7 +558,6 @@
             pijlenGeschoten = 0;
             isBeurtWissel = false; 
             
-            // Laad exact de bolletjes in van de persoon wiens beurt het is
             document.getElementById('hit-markers-rechts').innerHTML = spelers[huidigeSpelerIndex].hitMarkers.join('');
             updateUI();
         }
