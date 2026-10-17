@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#1E1E24">
+    <meta name="theme-color" content="#F05359">
     <title>Boogschieten Score</title>
     <link rel="manifest" href="manifest.json">
     <style>
@@ -14,13 +14,13 @@
             --kleur-7: #2F4159;
             --kleur-6: #FFFFFF;
             --kleur-mis: #444444;
-            --bg-color: #1E1E24;
         }
 
         body {
             margin: 0; padding: 0;
             font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
-            background-color: var(--bg-color);
+            /* Gradiënt gebaseerd op het fysieke bord (cyaan naar roze/rood) */
+            background: linear-gradient(135deg, #74C8D4 0%, #F05359 100%);
             color: white;
             display: flex;
             height: 100vh; width: 100vw;
@@ -38,102 +38,138 @@
             }
         }
 
+        /* Glazen panelen stijl voor de overzichten */
+        .glass-paneel {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 20px;
+        }
+
         /* Scherm Wissel Logica */
-        .scherm { display: none; width: 100%; height: 100%; }
+        .scherm { display: none; width: 100%; height: 100%; box-sizing: border-box; }
         .actief-scherm { display: flex; }
 
         /* Setup Scherm */
         #setup-scherm {
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-color: #2A2A35;
+            align-items: center; justify-content: center; padding: 20px;
         }
         .setup-box {
-            background: #3A3A48; padding: 30px; border-radius: 20px;
-            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            max-width: 500px; width: 90%;
+            text-align: center; max-width: 600px; width: 100%;
         }
-        .setup-box h1 { color: var(--kleur-10); margin-top: 0; }
-        .input-groep { margin-bottom: 20px; text-align: left; }
-        label { display: block; font-size: 1.2rem; margin-bottom: 8px; font-weight: bold; color: var(--kleur-8); }
-        input, select { 
+        .setup-box h1 { color: var(--kleur-10); margin-top: 0; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
+        .input-groep { margin-bottom: 25px; text-align: left; }
+        label { display: block; font-size: 1.2rem; margin-bottom: 10px; font-weight: bold; text-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+        
+        /* Doel Knoppen */
+        .doel-knoppen { display: flex; gap: 10px; justify-content: space-between; }
+        .btn-doel {
+            flex: 1; padding: 15px 0; font-size: 1.5rem; border-radius: 12px;
+            border: none; cursor: pointer; background: rgba(255,255,255,0.2); color: white;
+            transition: all 0.2s; font-family: inherit; font-weight: bold;
+        }
+        .btn-doel.gekozen {
+            background: var(--kleur-10); color: black;
+            transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+
+        select, input[type="text"] { 
             width: 100%; padding: 12px; font-size: 1.2rem; font-family: inherit;
-            border-radius: 10px; border: none; box-sizing: border-box; background: #FFF;
+            border-radius: 10px; border: none; box-sizing: border-box; background: rgba(255,255,255,0.9);
         }
         .speler-inputs { display: grid; gap: 10px; margin-top: 10px; }
         
         .btn-start {
             background-color: #28A745; color: white; font-size: 1.8rem;
             padding: 15px 40px; border: none; border-radius: 15px;
-            cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px;
-            box-shadow: 0 6px 0px #1E7E34;
+            cursor: pointer; font-weight: bold; width: 100%;
+            box-shadow: 0 6px 0px #1E7E34; transition: transform 0.1s;
         }
         .btn-start:active { transform: translateY(6px); box-shadow: 0 0px 0px #1E7E34; }
 
-        /* Game Scherm */
-        .paneel-links {
-            flex: 1; display: flex; flex-direction: column;
-            justify-content: space-between; align-items: center;
-            background-color: #2A2A35; padding: 20px; box-shadow: 5px 0 15px rgba(0,0,0,0.5); z-index: 2;
-        }
-        .paneel-rechts {
-            flex: 1.5; display: grid; grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(2, 1fr); gap: 15px; padding: 20px;
-        }
+        /* Game Scherm Layout (3 Kolommen) */
+        #game-scherm { gap: 15px; padding: 15px; }
+        .kolom-links { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .kolom-midden { flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; }
+        .kolom-rechts { flex: 1.8; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; }
 
-        .speler-info { text-align: center; width: 100%; }
-        .speler-naam { font-size: 3rem; color: var(--kleur-10); margin: 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.4); }
-        .doel-tekst { font-size: 1.2rem; color: #AAA; }
+        /* Leaderboard */
+        .leaderboard-titel { margin: 0 0 15px 0; font-size: 1.5rem; text-align: center; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+        .speler-rij {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.1); padding: 12px 15px;
+            border-radius: 12px; margin-bottom: 10px; font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        .speler-rij.actief {
+            background: var(--kleur-10); color: black; font-weight: bold;
+            transform: scale(1.05); box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 2px solid white;
+        }
+        .speler-rij .score-tekst { font-size: 1.4rem; }
+
+        /* Middenpaneel Info */
+        .speler-naam { font-size: 3rem; color: var(--kleur-10); margin: 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.5); line-height: 1; }
+        .doel-tekst { font-size: 1.2rem; color: #EEE; margin-bottom: 10px; }
 
         /* Visueel Doelwit */
-        .visueel-doelwit { position: relative; width: 180px; height: 180px; margin: 10px auto; }
+        .visueel-doelwit { position: relative; width: 160px; height: 160px; margin: auto; }
         .visueel-doelwit svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        .doelwit-grijs { filter: grayscale(100%) opacity(20%); }
-        .doelwit-kleur { clip-path: inset(100% 0 0 0); transition: clip-path 0.5s ease-out; }
+        .doelwit-grijs { filter: grayscale(100%) opacity(30%); }
+        .doelwit-kleur { clip-path: inset(100% 0 0 0); transition: clip-path 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        .score-display { font-size: 4rem; font-weight: bold; color: white; text-shadow: 2px 2px 0px rgba(0,0,0,0.4); margin: 5px 0; }
+        .score-display { font-size: 4rem; font-weight: bold; color: white; text-shadow: 3px 3px 0px rgba(0,0,0,0.5); margin: 10px 0; }
 
-        .actie-knoppen { display: flex; gap: 10px; width: 100%; }
+        .actie-knoppen { display: flex; gap: 10px; width: 100%; margin-top: auto; }
         .btn-actie {
             flex: 1; padding: 15px 10px; font-size: 1.2rem; border: none; border-radius: 12px;
-            cursor: pointer; font-weight: bold; color: white;
+            cursor: pointer; font-weight: bold; color: white; box-shadow: 0 4px 0px rgba(0,0,0,0.3);
         }
-        .btn-actie:active { opacity: 0.8; }
+        .btn-actie:active { transform: translateY(4px); box-shadow: 0 0px 0px rgba(0,0,0,0.3); }
 
+        /* Grote Knoppen */
         .btn-score {
             border: none; border-radius: 20px; font-size: 4.5rem; font-weight: bold; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 8px 0px rgba(0,0,0,0.3); transition: transform 0.1s, box-shadow 0.1s; font-family: inherit;
+            box-shadow: 0 8px 0px rgba(0,0,0,0.4); transition: transform 0.1s, box-shadow 0.1s; font-family: inherit;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
         }
-        .btn-score:active { transform: translateY(8px); box-shadow: 0 0px 0px rgba(0,0,0,0.3); }
+        .btn-score:active { transform: translateY(8px); box-shadow: 0 0px 0px rgba(0,0,0,0.4); }
 
-        .score-10 { background-color: var(--kleur-10); color: #000; }
+        .score-10 { background-color: var(--kleur-10); color: #000; text-shadow: none; }
         .score-9  { background-color: var(--kleur-9);  color: #FFF; }
         .score-8  { background-color: var(--kleur-8);  color: #FFF; }
         .score-7  { background-color: var(--kleur-7);  color: #FFF; }
-        .score-6  { background-color: var(--kleur-6);  color: #000; }
+        .score-6  { background-color: var(--kleur-6);  color: #000; text-shadow: none; }
         .score-0  { background-color: var(--kleur-mis); color: #FFF; }
 
         /* Confetti bij winst */
         .gewonnen-overlay {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8); z-index: 10; display: none;
+            background: rgba(0,0,0,0.85); z-index: 10; display: none;
             flex-direction: column; align-items: center; justify-content: center;
         }
-        .gewonnen-tekst { font-size: 5rem; color: var(--kleur-10); text-shadow: 0 0 20px var(--kleur-10); text-align: center; }
+        .gewonnen-tekst { font-size: 5rem; color: var(--kleur-10); text-shadow: 0 0 30px var(--kleur-10); text-align: center; margin-bottom: 30px;}
     </style>
 </head>
 <body>
 
     <!-- SCHERM 1: INSTELLINGEN -->
     <div id="setup-scherm" class="scherm actief-scherm">
-        <div class="setup-box">
+        <div class="glass-paneel setup-box">
             <h1>🏹 Start Spel</h1>
             
             <div class="input-groep">
                 <label>Tot hoeveel punten spelen we?</label>
-                <input type="number" id="doelScore" value="50" min="10" step="10">
+                <div class="doel-knoppen">
+                    <button class="btn-doel" onclick="kiesDoel(20, this)">20</button>
+                    <button class="btn-doel" onclick="kiesDoel(40, this)">40</button>
+                    <button class="btn-doel gekozen" onclick="kiesDoel(60, this)">60</button>
+                    <button class="btn-doel" onclick="kiesDoel(80, this)">80</button>
+                    <button class="btn-doel" onclick="kiesDoel(100, this)">100</button>
+                </div>
             </div>
 
             <div class="input-groep">
@@ -155,10 +191,20 @@
 
     <!-- SCHERM 2: HET SPEL -->
     <div id="game-scherm" class="scherm">
-        <div class="paneel-links">
-            <div class="speler-info">
+        
+        <!-- Kolom Links: Ieders Score (Leaderboard) -->
+        <div class="glass-paneel kolom-links">
+            <h3 class="leaderboard-titel">Scorebord</h3>
+            <div id="leaderboardLijst">
+                <!-- Wordt gevuld via JS -->
+            </div>
+        </div>
+
+        <!-- Kolom Midden: Actieve Speler -->
+        <div class="glass-paneel kolom-midden">
+            <div>
                 <h2 class="speler-naam" id="huidigeSpelerNaam">Naam</h2>
-                <div class="doel-tekst">Speelt tot <span id="weergaveDoelScore">50</span></div>
+                <div class="doel-tekst">Speelt tot <span id="weergaveDoelScore">60</span></div>
             </div>
 
             <div class="visueel-doelwit">
@@ -190,7 +236,8 @@
             </div>
         </div>
 
-        <div class="paneel-rechts">
+        <!-- Kolom Rechts: Knoppen -->
+        <div class="kolom-rechts">
             <button class="btn-score score-10" onclick="voegScoreToe(10)">10</button>
             <button class="btn-score score-9" onclick="voegScoreToe(9)">9</button>
             <button class="btn-score score-8" onclick="voegScoreToe(8)">8</button>
@@ -203,17 +250,21 @@
     <!-- SCHERM OVERLAY: GEWONNEN -->
     <div id="gewonnen-scherm" class="gewonnen-overlay">
         <div class="gewonnen-tekst" id="winnaarTekst">Jorden Wint!</div>
-        <br>
         <button class="btn-start" style="width: auto; padding: 20px 50px;" onclick="terugNaarMenu()">Nieuw Spel</button>
     </div>
 
     <script>
         let spelers = [];
         let huidigeSpelerIndex = 0;
-        let doelScore = 50;
+        let doelScore = 60; // Standaard geselecteerd
         
-        // Standaard namen om het makkelijk te maken
         const standaardNamen = ["Lou", "Noé", "Jorden", "Mama"];
+
+        function kiesDoel(score, btnElement) {
+            doelScore = score;
+            document.querySelectorAll('.btn-doel').forEach(btn => btn.classList.remove('gekozen'));
+            btnElement.classList.add('gekozen');
+        }
 
         function genereerSpelerInputs() {
             const aantal = document.getElementById('aantalSpelers').value;
@@ -227,7 +278,6 @@
         }
 
         function startSpel() {
-            doelScore = parseInt(document.getElementById('doelScore').value) || 50;
             document.getElementById('weergaveDoelScore').innerText = doelScore;
             
             const aantal = document.getElementById('aantalSpelers').value;
@@ -238,8 +288,6 @@
             }
 
             huidigeSpelerIndex = 0;
-            
-            // Verberg Next knop als er maar 1 speler is
             document.getElementById('btnVolgende').style.display = (spelers.length > 1) ? 'block' : 'none';
 
             wisselScherm('game-scherm');
@@ -252,16 +300,34 @@
             document.getElementById(schermId).classList.add('actief-scherm');
         }
 
+        function renderLeaderboard() {
+            let html = '';
+            spelers.forEach((speler, index) => {
+                const isActief = (index === huidigeSpelerIndex) ? 'actief' : '';
+                html += `
+                    <div class="speler-rij ${isActief}">
+                        <span>${speler.naam}</span>
+                        <span class="score-tekst">${speler.totaal}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('leaderboardLijst').innerHTML = html;
+        }
+
         function updateUI() {
             const speler = spelers[huidigeSpelerIndex];
+            
+            // Middenpaneel updaten
             document.getElementById('huidigeSpelerNaam').innerText = speler.naam;
             document.getElementById('huidigeScore').innerText = speler.totaal;
 
-            // Bereken vul-percentage (maximaal 100%)
+            // Linkerpaneel (Leaderboard) updaten
+            renderLeaderboard();
+
+            // Bereken vul-percentage voor SVG
             let percentage = (speler.totaal / doelScore) * 100;
             if (percentage > 100) percentage = 100;
             
-            // clip-path inset(TOP RIGHT BOTTOM LEFT) - We knippen de top weg
             const clipWaarde = 100 - percentage;
             document.getElementById('doelwitVulling').style.clipPath = `inset(${clipWaarde}% 0 0 0)`;
 
@@ -297,7 +363,6 @@
             wisselScherm('setup-scherm');
         }
 
-        // Genereer de inputs de eerste keer inladen
         window.onload = genereerSpelerInputs;
     </script>
 </body>
