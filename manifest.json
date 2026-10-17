@@ -1,0 +1,17 @@
+{
+  "name": "Boogschieten",
+  "short_name": "Boogschieten",
+  "description": "Een app om de score bij te houden met pijl en boog.",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#1E1E24",
+  "theme_color": "#1E1E24",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
