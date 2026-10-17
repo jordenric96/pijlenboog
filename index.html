@@ -50,11 +50,11 @@
         .input-groep { margin-bottom: 15px; text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; }
         label { display: block; font-size: 1.2rem; margin-bottom: 10px; font-weight: bold; text-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
         
-        .doel-knoppen { display: flex; gap: 10px; justify-content: space-between; }
+        .doel-knoppen { display: flex; gap: 8px; justify-content: space-between; }
         .spelers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
         
         .btn-optie {
-            flex: 1; padding: 12px 5px; font-size: 1.2rem; border-radius: 12px;
+            flex: 1; padding: 12px 2px; font-size: 1.1rem; border-radius: 12px;
             border: none; cursor: pointer; background: rgba(255,255,255,0.2); color: white;
             transition: all 0.2s; font-family: inherit; font-weight: bold;
             display: flex; align-items: center; justify-content: center; gap: 5px;
@@ -124,7 +124,7 @@
 
         .actie-knoppen { display: flex; gap: 10px; width: 100%; margin-top: auto; }
         .btn-actie {
-            flex: 1; padding: 12px 10px; font-size: 1rem; border: none; border-radius: 12px;
+            padding: 12px 10px; font-size: 1rem; border: none; border-radius: 12px;
             cursor: pointer; font-weight: bold; color: white; box-shadow: 0 4px 0px rgba(0,0,0,0.3);
         }
         .btn-actie:active { transform: translateY(4px); box-shadow: 0 0px 0px rgba(0,0,0,0.3); }
@@ -163,9 +163,10 @@
             <div class="input-groep">
                 <label>🏆 Hoeveel punten om te winnen?</label>
                 <div class="doel-knoppen">
-                    <button class="btn-optie" onclick="kiesDoel(30, this)">30 ⭐</button>
-                    <button class="btn-optie gekozen" onclick="kiesDoel(50, this)">50 🌟</button>
-                    <button class="btn-optie" onclick="kiesDoel(70, this)">70 💫</button>
+                    <button class="btn-optie" onclick="kiesDoel(20, this)">20 ⭐</button>
+                    <button class="btn-optie" onclick="kiesDoel(40, this)">40 🌟</button>
+                    <button class="btn-optie gekozen" onclick="kiesDoel(60, this)">60 💫</button>
+                    <button class="btn-optie" onclick="kiesDoel(80, this)">80 ✨</button>
                     <button class="btn-optie" onclick="kiesDoel(100, this)">100 🏆</button>
                 </div>
             </div>
@@ -211,7 +212,7 @@
         <div class="glass-paneel kolom-midden">
             <div>
                 <h2 class="speler-naam" id="huidigeSpelerNaam">Naam</h2>
-                <div class="doel-tekst">Speelt tot <span id="weergaveDoelScore">50</span></div>
+                <div class="doel-tekst">Speelt tot <span id="weergaveDoelScore">60</span></div>
                 <div class="pijlen-indicator" id="pijlenIndicator">🎯🎯🎯</div>
             </div>
 
@@ -238,8 +239,9 @@
             </div>
 
             <div class="actie-knoppen">
-                <button class="btn-actie" onclick="undo()" style="background-color: #E0A800;">Oeps ↩</button>
-                <button class="btn-actie" onclick="volgendeSpelerHandmatig()" style="background-color: #17A2B8;" id="btnVolgende">Volgende ➔</button>
+                <button class="btn-actie" onclick="bevestigStop()" style="background-color: #DC3545; flex: 0.4;" title="Stop Spel">❌</button>
+                <button class="btn-actie" onclick="undo()" style="background-color: #E0A800; flex: 1;">Oeps ↩</button>
+                <button class="btn-actie" onclick="volgendeSpelerHandmatig()" style="background-color: #17A2B8; flex: 1;" id="btnVolgende">Volgende ➔</button>
             </div>
         </div>
 
@@ -261,15 +263,15 @@
     <script>
         let spelers = [];
         let huidigeSpelerIndex = 0;
-        let doelScore = 50;
+        let doelScore = 60;
         let aantalPijlenPerBeurt = 3;
-        let aantalSpelersGekozen = 2; // Standaard 2 spelers
+        let aantalSpelersGekozen = 2;
         let pijlenGeschoten = 0;
         let geschiedenis = [];
         let autoNextTimeout = null;
+        let isBeurtWissel = false; // Voorkomt klikken tijdens het doorwisselen
         let audioCtx = null;
         
-        // Enkel Lou en Noé als vaste namen
         const standaardNamen = ["Lou", "Noé"];
 
         function initAudio() {
@@ -338,6 +340,7 @@
             geschiedenis = [];
             pijlenGeschoten = 0;
             huidigeSpelerIndex = 0;
+            isBeurtWissel = false;
 
             for(let i = 0; i < aantalSpelersGekozen; i++) {
                 const naamInput = document.getElementById(`naamSpeler${i}`);
@@ -380,6 +383,8 @@
         }
 
         function voegScoreToe(punten) {
+            if (isBeurtWissel) return; // Blokkeer kliks als hij al aan het wisselen is
+
             initAudio();
             clearTimeout(autoNextTimeout);
             speelGeluid(punten === 10 ? 'juich' : 'swoosh');
@@ -407,7 +412,9 @@
                 return;
             }
 
-            if (pijlenGeschoten >= aantalPijlenPerBeurt && spelers.length > 1) {
+            // Gaat automatisch naar volgende beurt, OOK als je alleen speelt (reset de pijlen)
+            if (pijlenGeschoten >= aantalPijlenPerBeurt) {
+                isBeurtWissel = true; // Zet het slotje erop
                 autoNextTimeout = setTimeout(() => {
                     volgendeSpelerVerwerking(false);
                 }, 1200);
@@ -416,6 +423,7 @@
 
         function volgendeSpelerHandmatig() {
             clearTimeout(autoNextTimeout);
+            isBeurtWissel = false;
             volgendeSpelerVerwerking(true);
         }
 
@@ -423,15 +431,20 @@
             if (isHandmatig) {
                 geschiedenis.push({ type: 'skip', spelerIndex: huidigeSpelerIndex, pijlenVooraf: pijlenGeschoten });
             }
+            
             huidigeSpelerIndex = (huidigeSpelerIndex + 1) % spelers.length;
             pijlenGeschoten = 0;
+            isBeurtWissel = false; // Haal het slotje er weer af
             document.getElementById('hit-markers').innerHTML = '';
+            
             updateUI();
         }
 
         function undo() {
             if (geschiedenis.length === 0) return;
+            
             clearTimeout(autoNextTimeout);
+            isBeurtWissel = false; // Haal slotje eraf bij undo
             
             const laatsteActie = geschiedenis.pop();
 
@@ -455,6 +468,12 @@
             }
 
             updateUI();
+        }
+
+        function bevestigStop() {
+            if(confirm("Wil je dit spel stoppen en terug naar het menu gaan?")) {
+                terugNaarMenu();
+            }
         }
 
         function renderLeaderboard() {
@@ -499,7 +518,11 @@
             document.getElementById('huidigeSpelerNaam').innerText = speler.naam;
             document.getElementById('huidigeScore').innerText = speler.totaal;
             
-            let indicator = '🏹'.repeat(pijlenGeschoten) + '⚪'.repeat(aantalPijlenPerBeurt - pijlenGeschoten);
+            // Zorg dat de indicator niet meer pijlen tekent dan ingesteld
+            let getoondePijlen = Math.min(pijlenGeschoten, aantalPijlenPerBeurt);
+            let restPijlen = Math.max(0, aantalPijlenPerBeurt - pijlenGeschoten);
+            let indicator = '🏹'.repeat(getoondePijlen) + '⚪'.repeat(restPijlen);
+            
             document.getElementById('pijlenIndicator').innerText = indicator;
 
             renderLeaderboard();
