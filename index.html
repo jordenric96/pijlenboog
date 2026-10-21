@@ -150,7 +150,7 @@
         }
         .btn-actie:active { transform: translateY(4px); box-shadow: 0 0px 0px rgba(0,0,0,0.3); }
 
-        /* --- NIEUW: ZWEVENDE SCORE ANIMATIE --- */
+        /* ZWEVENDE SCORE ANIMATIE */
         @keyframes zweefAnimatie {
             0% { opacity: 0; transform: translateY(3px) scale(0.5); }
             15% { opacity: 1; transform: translateY(0px) scale(1.1); }
@@ -158,18 +158,35 @@
             100% { opacity: 0; transform: translateY(-12px) scale(1); }
         }
         .zwevende-score {
-            animation: zweefAnimatie 1.2s ease-out forwards;
-            pointer-events: none; /* Blokkeert geen nieuwe kliks */
-            transform-box: fill-box;
-            transform-origin: center center;
+            animation: zweefAnimatie 1.2s ease-out forwards; pointer-events: none;
+            transform-box: fill-box; transform-origin: center center;
         }
 
-        .gewonnen-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85); z-index: 10; display: none;
+        /* NIEUW: UITGEBREID EIND SCHERM OVERZICHT */
+        #eind-scherm {
             flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.85); z-index: 20; padding: 20px;
         }
-        .gewonnen-tekst { font-size: 5rem; color: var(--kleur-10); text-shadow: 0 0 30px var(--kleur-10); text-align: center; margin-bottom: 30px;}
+        .eind-titel { font-size: 4rem; color: var(--kleur-10); text-shadow: 0 0 30px var(--kleur-10); text-align: center; margin: 0 0 20px 0; }
+        
+        .eind-grid {
+            display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;
+            max-height: 65vh; overflow-y: auto; width: 100%; max-width: 1100px;
+        }
+        .eind-kaart {
+            background: rgba(255,255,255,0.1); border-radius: 20px; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+            border: 2px solid rgba(255,255,255,0.2); min-width: 160px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .eind-kaart.winnaar {
+            border-color: var(--kleur-10); background: rgba(251, 208, 54, 0.15);
+            transform: scale(1.05); box-shadow: 0 0 30px rgba(251, 208, 54, 0.4);
+        }
+        .eind-kaart-naam { font-size: 2rem; font-weight: bold; margin-bottom: 5px; color: white; text-shadow: 1px 1px 0 #000; }
+        .eind-kaart-score { font-size: 1.2rem; color: #DDD; margin-bottom: 15px; font-weight: bold; }
+        .eind-doelwit { width: 120px; height: 120px; position: relative; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5)); }
+        .eind-doelwit svg { width: 100%; height: 100%; position: absolute; top:0; left:0; }
     </style>
 </head>
 <body>
@@ -223,13 +240,8 @@
     <div id="game-scherm" class="scherm">
         
         <div class="glass-paneel kolom-links">
-            <div id="leaderboardLijst">
-                <!-- Wordt gevuld via JS -->
-            </div>
-            
-            <div class="vergelijking-box" id="vergelijkingBox">
-                <!-- Wordt elke 4 seconden geüpdatet -->
-            </div>
+            <div id="leaderboardLijst"></div>
+            <div class="vergelijking-box" id="vergelijkingBox"></div>
         </div>
 
         <div class="glass-paneel kolom-midden">
@@ -260,9 +272,7 @@
                 <span id="huidigeScore">0</span>
             </div>
             
-            <div id="spelerStats" class="speler-stats">
-                <!-- Statistieken in lijstvorm via JS -->
-            </div>
+            <div id="spelerStats" class="speler-stats"></div>
 
             <div class="actie-knoppen">
                 <button class="btn-actie" onclick="bevestigStop()" style="background-color: #DC3545; flex: 0.3;" title="Stop Spel">❌</button>
@@ -271,11 +281,8 @@
             </div>
         </div>
 
-        <!-- De Grote Interactieve Rechterkolom (Cijferknoppen zijn weg!) -->
         <div class="kolom-rechts">
             <h3 style="margin:0 0 15px 0; color: #FFF; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Tik op het bord om te schieten! 👇</h3>
-            
-            <!-- overflow="visible" zorgt dat de zwevende tekst niet wordt afgesneden aan de randen -->
             <svg id="klikBord" viewBox="0 0 100 100" style="width: 100%; max-height: 80vh; cursor: crosshair; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.4)); overflow: visible;" onclick="schietPijl(event)">
                 <defs>
                     <linearGradient id="bordGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -283,23 +290,26 @@
                         <stop offset="100%" stop-color="#F05359"/>
                     </linearGradient>
                 </defs>
-                
                 <rect x="0" y="0" width="100" height="100" rx="15" fill="url(#bordGrad)" />
-                
-                <circle cx="50" cy="50" r="45" fill="#FFFFFF" stroke="#000" stroke-width="0.5"/> <!-- Score 6 -->
-                <circle cx="50" cy="50" r="36" fill="#2F4159"/> <!-- Score 7 -->
-                <circle cx="50" cy="50" r="27" fill="#52B5D9"/> <!-- Score 8 -->
-                <circle cx="50" cy="50" r="18" fill="#F05359"/> <!-- Score 9 -->
-                <circle cx="50" cy="50" r="9"  fill="#FBD036"/> <!-- Score 10 -->
-                
+                <circle cx="50" cy="50" r="45" fill="#FFFFFF" stroke="#000" stroke-width="0.5"/>
+                <circle cx="50" cy="50" r="36" fill="#2F4159"/>
+                <circle cx="50" cy="50" r="27" fill="#52B5D9"/>
+                <circle cx="50" cy="50" r="18" fill="#F05359"/>
+                <circle cx="50" cy="50" r="9"  fill="#FBD036"/>
                 <g id="hit-markers-rechts"></g>
             </svg>
         </div>
     </div>
 
-    <div id="gewonnen-scherm" class="gewonnen-overlay">
-        <div class="gewonnen-tekst" id="winnaarTekst">Wint! 🏆</div>
-        <button class="btn-start" style="width: auto; padding: 20px 50px;" onclick="terugNaarMenu()">Nieuw Spel</button>
+    <!-- NIEUW: HET EIND SCHERM OVERZICHT -->
+    <div id="eind-scherm" class="scherm">
+        <h1 class="eind-titel" id="eindWinnaarTekst">Wint! 🏆</h1>
+        
+        <div class="eind-grid" id="eindGrid">
+            <!-- Kaartjes worden hier via JS ingeladen -->
+        </div>
+
+        <button class="btn-start" style="width: auto; padding: 20px 60px; margin-top: 30px;" onclick="terugNaarMenu()">Nieuw Spel Starten</button>
     </div>
 
     <script>
@@ -455,7 +465,6 @@
             document.getElementById(schermId).classList.add('actief-scherm');
         }
 
-        // Berekent de coördinaten en vult de juiste score in
         function schietPijl(event) {
             if (isBeurtWissel) return;
 
@@ -464,10 +473,8 @@
             pt.x = event.clientX;
             pt.y = event.clientY;
             
-            // Rekent de klik op het scherm om naar het interne assenstelsel van de SVG (0-100)
             const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
             
-            // Afstand berekenen vanaf het exacte middelpunt (50, 50)
             const dx = svgP.x - 50;
             const dy = svgP.y - 50;
             const distance = Math.sqrt(dx*dx + dy*dy);
@@ -478,7 +485,7 @@
             else if (distance <= 27) score = 8;
             else if (distance <= 36) score = 7;
             else if (distance <= 45) score = 6;
-            else score = 0; // Geklikt buiten de witte ring
+            else score = 0; 
 
             voegScoreToe(score, svgP.x, svgP.y);
         }
@@ -491,30 +498,25 @@
             else if (punten === 0) speelGeluid('mis');
             else speelGeluid('swoosh');
 
-            // 1. TEKEN HET BOLLETJE EXACT WAAR GEKLIKT IS
             const markerHTML = `<circle cx="${clickX.toFixed(2)}" cy="${clickY.toFixed(2)}" r="2.5" fill="#111" stroke="#FFF" stroke-width="0.8" />`;
             document.getElementById('hit-markers-rechts').insertAdjacentHTML('beforeend', markerHTML);
 
-            // 2. VOEG VISUELE ZWEVENDE SCORE TOE
             const zweefId = 'zweef-' + Date.now();
             const scoreKleur = punten === 10 ? "#FBD036" : (punten === 0 ? "#FF3333" : "#FFFFFF");
             const scoreTekst = punten === 0 ? "Mis!" : `+${punten}`;
             
-            // Tekst wordt ietsje boven het bolletje geplaatst (y - 4) en geanimeerd met CSS class 'zwevende-score'
             const zweefHTML = `<text id="${zweefId}" x="${clickX.toFixed(2)}" y="${(clickY - 4).toFixed(2)}" text-anchor="middle" font-size="7" font-weight="bold" fill="${scoreKleur}" stroke="#000" stroke-width="0.8" class="zwevende-score" style="paint-order: stroke fill;">${scoreTekst}</text>`;
             document.getElementById('hit-markers-rechts').insertAdjacentHTML('beforeend', zweefHTML);
             
-            // Verwijder de zwevende tekst netjes nadat de animatie klaar is (om het geheugen schoon te houden)
             setTimeout(() => {
                 const el = document.getElementById(zweefId);
                 if (el) el.remove();
             }, 1200);
 
-            // Sla de acties op voor de score en undo functionaliteit
             const speler = spelers[huidigeSpelerIndex];
             speler.scores.push(punten);
             speler.totaal += punten;
-            speler.hitMarkers.push(markerHTML); // Sla ENKEL het bolletje op (de zweeftekst verdwijnt toch)
+            speler.hitMarkers.push(markerHTML); 
             
             geschiedenis.push({
                 type: 'score',
@@ -528,10 +530,9 @@
             updateUI();
             tekenVergelijkingHTML();
 
+            // CHECK WINST
             if(speler.totaal >= doelScore) {
-                document.getElementById('winnaarTekst').innerText = `${speler.naam} Wint! 🏆`;
-                document.getElementById('gewonnen-scherm').style.display = 'flex';
-                clearInterval(carrouselInterval);
+                toonEindScherm(speler.naam);
                 return;
             }
 
@@ -539,8 +540,43 @@
                 isBeurtWissel = true; 
                 autoNextTimeout = setTimeout(() => {
                     volgendeSpelerVerwerking(false);
-                }, 1200); // 1.2s wachttijd geeft de laatste zwevende score tijd om mooi in beeld te komen
+                }, 1200); 
             }
+        }
+
+        // NIEUW: Functie om het eindscherm overzicht te genereren
+        function toonEindScherm(winnaarNaam) {
+            clearInterval(carrouselInterval);
+            document.getElementById('eindWinnaarTekst').innerText = `${winnaarNaam} Wint! 🏆`;
+            
+            let gridHTML = '';
+            // We sorteren de spelers van hoogste naar laagste score voor het overzicht
+            let gesorteerdeSpelers = [...spelers].sort((a, b) => b.totaal - a.totaal);
+            
+            gesorteerdeSpelers.forEach(p => {
+                let isWinnaar = p.naam === winnaarNaam ? 'winnaar' : '';
+                gridHTML += `
+                    <div class="eind-kaart ${isWinnaar}">
+                        <div class="eind-kaart-naam">${p.naam}</div>
+                        <div class="eind-kaart-score">Score: ${p.totaal}</div>
+                        <div class="eind-doelwit">
+                            <svg viewBox="0 0 100 100">
+                                <rect x="0" y="0" width="100" height="100" rx="15" fill="#2A2A35" />
+                                <circle cx="50" cy="50" r="45" fill="#FFFFFF" stroke="#000" stroke-width="0.5"/>
+                                <circle cx="50" cy="50" r="36" fill="#2F4159"/>
+                                <circle cx="50" cy="50" r="27" fill="#52B5D9"/>
+                                <circle cx="50" cy="50" r="18" fill="#F05359"/>
+                                <circle cx="50" cy="50" r="9"  fill="#FBD036"/>
+                                <!-- Laad alle verzamelde bolletjes van deze speler exact in -->
+                                ${p.hitMarkers.join('')}
+                            </svg>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('eindGrid').innerHTML = gridHTML;
+            wisselScherm('eind-scherm');
         }
 
         function volgendeSpelerHandmatig() {
@@ -669,7 +705,6 @@
         }
 
         function terugNaarMenu() {
-            document.getElementById('gewonnen-scherm').style.display = 'none';
             wisselScherm('setup-scherm');
         }
 
